@@ -54,7 +54,6 @@ const char *updatePrefixM = "/master/";
 const char *updatePrefixD = "/devel/";
 const char *updatePrefix = updatePrefixM;
 
-
 #define LOCALUDPPORT 9002
 //Get real UTC time from NTP server
 const char* ntpServer = "pool.ntp.org";
@@ -91,6 +90,7 @@ int shImportInterval = 0;
 char shImport = 0;
 unsigned long time_last_update = 0;
 #endif
+
 /* SH_LOC_OFF: never send position information to SondeHub
    SH_LOC_FIXED: send fixed position (if specified in config) to sondehub
    SH_LOC_CHASE: always activate chase mode and send GPS position (if available)
@@ -119,6 +119,7 @@ unsigned long lastMqttUptime = 0;
 boolean mqttEnabled;
 MQTT mqttclient;
 #endif
+
 boolean forceReloadScreenConfig = false;
 
 enum KeyPress { KP_NONE = 0, KP_SHORT, KP_DOUBLE, KP_MID, KP_LONG };
@@ -134,7 +135,6 @@ struct Button {
 };
 Button button1 = {0, 0, KP_NONE, 0, -1, false};
 Button button2 = {0, 0, KP_NONE, 0, -1, false};
-
 
 static int lastDisplay = 1;
 static int currentDisplay = 1;
@@ -169,7 +169,6 @@ int readLine(Stream &stream, char *buffer, int maxlen) {
   }
   return n;
 }
-
 
 // Replaces placeholder with LED state value
 String processor(const String& var) {
@@ -238,7 +237,6 @@ const String sondeTypeSelect(int activeType) {
   return sts;
 }
 
-
 //trying to work around
 //"assertion "heap != NULL && "free() target pointer is outside heap areas"" failed:"
 // which happens if request->send is called in createQRGForm!?!??
@@ -246,7 +244,6 @@ char message[10240 * 4-2048]; //needs to be large enough for all forms (not chec
 // QRG form is currently about 24kb with 100 entries
 
 ///////////////////////// Functions for Reading / Writing QRG list from/to qrg.txt
-
 void setupChannelList() {
   File file = SPIFFS.open("/qrg.txt", "r");
   if (!file) {
@@ -304,9 +301,11 @@ void HTMLBODY(char *ptr, const char *which) {
   strcat(ptr, which);
   strcat(ptr, "\" method=\"post\"><div class=\"content\">");
 }
+
 void HTMLBODYEND(char *ptr) {
   strcat(ptr, "</div></form></body></html>");
 }
+
 void HTMLSAVEBUTTON(char *ptr) {
   strcat(ptr, "</div><div class=\"footer\"><input type=\"submit\" class=\"save\" value=\"Save changes\"/>"
 	      "<span class=\"ttgoinfo\">rdzTTGOserver ");
@@ -380,9 +379,7 @@ const char *handleQRGPost(AsyncWebServerRequest *request) {
   return "";
 }
 
-
 /////////////////// Functions for reading/writing Wifi networks from networks.txt
-
 #define MAX_WIFI 10
 int nNetworks;
 struct {
@@ -417,7 +414,6 @@ void setupWifiList() {
     Serial.println(networks[j].pw);
   }
 }
-
 
 const char *createWIFIForm() {
   char *ptr = message;
@@ -599,7 +595,6 @@ const char *createLiveJson() {
 }
 ///////////////////// Config form
 
-
 void setupConfigData() {
   File file = SPIFFS.open("/config.txt", "r");
   if (!file) {
@@ -615,7 +610,6 @@ void setupConfigData() {
   shImportInterval = 5;   // refresh now in 5 seconds
 #endif
 }
-
 
 struct st_configitems config_list[] = {
   /* General config settings */
@@ -782,7 +776,6 @@ const char *createConfigForm() {
   return message;
 }
 
-
 const char *handleConfigPost(AsyncWebServerRequest * request) {
   // parameters: a_i, f_1, t_i  (active/frequency/type)
   Serial.println("Handling post request");
@@ -865,7 +858,6 @@ const char *createControlForm() {
   return message;
 }
 
-
 const char *handleControlPost(AsyncWebServerRequest * request) {
   Serial.println("Handling post request");
   int params = request->params();
@@ -930,7 +922,6 @@ void handleUpload(AsyncWebServerRequest * request, String filename, size_t index
     file.close();
   }
 }
-
 
 int streamEditForm(int &state, File & file, String filename, char *buffer, size_t maxlen, size_t index) {
   Serial.printf("streamEdit: state=%d  max:%d idx:%d\n", state, maxlen, index);
@@ -1005,7 +996,6 @@ const char *createEditForm(String filename) {
   Serial.printf("Edit form: size=%d bytes\n", strlen(message));
   return message;
 }
-
 
 const char *handleEditPost(AsyncWebServerRequest * request) {
   Serial.println("Handling post request");
@@ -1140,7 +1130,6 @@ const char *createKMLDynamic() {
   return message;
 }
 
-
 const char *sendGPX(AsyncWebServerRequest * request) {
   Serial.println("\n\n\n********GPX request\n\n");
   String url = request->url();
@@ -1166,8 +1155,8 @@ const char *sendGPX(AsyncWebServerRequest * request) {
   return message;
 }
 
-
 const char* PARAM_MESSAGE = "message";
+
 void SetupAsyncServer() {
   Serial.println("SetupAsyncServer()\n");
   server.reset();
@@ -1342,6 +1331,7 @@ int fetchWifiIndex(const char *id) {
 const char *fetchWifiSSID(int i) {
   return networks[i].id.c_str();
 }
+
 const char *fetchWifiPw(int i) {
   return networks[i].pw.c_str();
 }
@@ -1423,9 +1413,6 @@ void initTouch() {
     Serial.printf("Initializing touch 2 on pin %d\n", sonde.config.button2_pin & 0x7f);
   }
 }
-
-
-
 
 /// Arrg. MicroNMEA changes type definition... so lets auto-infer type
 template<typename T>
@@ -1528,6 +1515,7 @@ void dumpGPS() {
     Serial.printf("%02x ", (uint8_t)c);
   }
 }
+
 void initGPS() {
   if (sonde.config.gps_rxd < 0) return; // GPS disabled
   if (sonde.config.gps_txd >= 0) {  // TX enable, thus try setting baud to 9600 and do a factory reset
@@ -1626,7 +1614,6 @@ void sx1278Task(void *parameter) {
     delay(20);
   }
 }
-
 
 void IRAM_ATTR touchISR() {
   if (!button1.isTouched) {
@@ -1874,289 +1861,6 @@ void heap_caps_alloc_failed_hook(size_t requested_size, uint32_t caps, const cha
 }
 #endif
 
-
-void setup()
-{
-  char buf[12];
-  // Open serial communications and wait for port to open:
-  Serial.begin(/*921600 */115200);
-  for (int i = 0; i < 39; i++) {
-    int v = gpio_get_level((gpio_num_t)i);
-    Serial.printf("%d:%d ", i, v);
-  }
-  Serial.println("");
-#ifdef ESP_MEM_DEBUG
-  esp_err_t error = heap_caps_register_failed_alloc_callback(heap_caps_alloc_failed_hook);
-#endif
-  axpSemaphore = xSemaphoreCreateBinary();
-  xSemaphoreGive(axpSemaphore);
-
-  for (int i = 0; i < 39; i++) {
-    Serial.printf("%d:%d ", i, initlevels[i]);
-  }
-  Serial.println(" (before setup)");
-  sonde.defaultConfig();  // including autoconfiguration
-  aprs_gencrctab();
-
-  Serial.println("Initializing SPIFFS");
-  // Initialize SPIFFS
-  if (!SPIFFS.begin(true)) {
-    Serial.println("An Error has occurred while mounting SPIFFS");
-    return;
-  }
-
-  Serial.println("Reading initial configuration");
-  setupConfigData();    // configuration must be read first due to OLED ports!!!
-  WiFi.setHostname(sonde.config.mdnsname);
-
-  // NOT TTGO v1 (fingerprint 64) or Heltec v1/v2 board (fingerprint 4)
-  // and NOT TTGO Lora32 v2.1_1.6 (fingerprint 31/63)
-  if ( ( (sonde.fingerprint & (64 + 31)) != 31) && ((sonde.fingerprint & 16) == 16) ) {
-    // FOr T-Beam 1.0
-    for (int i = 0; i < 10; i++) { // try multiple times
-      Wire.begin(21, 22);
-      // Make sure the whole thing powers up!?!?!?!?!?
-      U8X8 *u8x8 = new U8X8_SSD1306_128X64_NONAME_HW_I2C(0, 22, 21);
-      u8x8->initDisplay();
-      delay(500);
-
-      scanI2Cdevice();
-      if (!axp.begin(Wire, AXP192_SLAVE_ADDRESS)) {
-        Serial.println("AXP192 Begin PASS");
-      } else {
-        Serial.println("AXP192 Begin FAIL");
-      }
-      axp.setPowerOutPut(AXP192_LDO2, AXP202_ON);
-      if (sonde.config.type == TYPE_M5_CORE2) {
-        // Display backlight on M5 Core2
-        axp.setPowerOutPut(AXP192_DCDC3, AXP202_ON);
-        axp.setDCDC3Voltage(3300);
-	// SetBusPowerMode(0):
-	// #define AXP192_GPIO0_CTL                        (0x90)
-	// #define AXP192_GPIO0_VOL                        (0x91)
-	// #define AXP202_LDO234_DC23_CTL                  (0x12)
-
-	// The axp class lacks a functino to set GPIO0 VDO to 3.3V (as is done by original M5Stack software)
-	// so do this manually (default value 2.8V did not have the expected effect :))
-	// data = Read8bit(0x91);
-        // write1Byte(0x91, (data & 0X0F) | 0XF0);
-	uint8_t reg;
-	Wire.beginTransmission((uint8_t)AXP192_SLAVE_ADDRESS);
-	Wire.write(AXP192_GPIO0_VOL);
-	Wire.endTransmission();
-	Wire.requestFrom(AXP192_SLAVE_ADDRESS, 1);
-	reg = Wire.read();
-	reg = (reg&0x0F) | 0xF0;
-	Wire.beginTransmission((uint8_t)AXP192_SLAVE_ADDRESS);
-	Wire.write(AXP192_GPIO0_VOL);
-	Wire.write(reg);
-	Wire.endTransmission();
-	// data = Read8bit(0x90);
-        // Write1Byte(0x90, (data & 0XF8) | 0X02)
-	axp.setGPIOMode(AXP_GPIO_0, AXP_IO_LDO_MODE);  // disable AXP supply from VBUS
-        pmu_irq = 2; // IRQ pin is not connected on Core2
-	// data = Read8bit(0x12);         //read reg 0x12
-        // Write1Byte(0x12, data | 0x40);    // enable 3,3V => 5V booster
-	// this is done below anyway: axp.setPowerOutPut(AXP192_EXTEN, AXP202_ON);
-
-        axp.adc1Enable(AXP202_ACIN_VOL_ADC1, 1);
-        axp.adc1Enable(AXP202_ACIN_CUR_ADC1, 1);
-      } else {
-        // GPS on T-Beam, buzzer on M5 Core2
-        axp.setPowerOutPut(AXP192_LDO3, AXP202_ON);
-        axp.adc1Enable(AXP202_VBUS_VOL_ADC1, 1);
-        axp.adc1Enable(AXP202_VBUS_CUR_ADC1, 1);
-      }
-      axp.setPowerOutPut(AXP192_DCDC2, AXP202_ON);
-      axp.setPowerOutPut(AXP192_EXTEN, AXP202_ON);
-      axp.setPowerOutPut(AXP192_DCDC1, AXP202_ON);
-      axp.setDCDC1Voltage(3300);
-      axp.adc1Enable(AXP202_BATT_CUR_ADC1, 1);
-      if (sonde.config.button2_axp ) {
-        if (pmu_irq != 2) {
-          pinMode(PMU_IRQ, INPUT_PULLUP);
-          attachInterrupt(PMU_IRQ, [] {
-            pmu_irq = 1;
-          }, FALLING);
-        }
-        //axp.enableIRQ(AXP202_VBUS_REMOVED_IRQ | AXP202_VBUS_CONNECT_IRQ | AXP202_BATT_REMOVED_IRQ | AXP202_BATT_CONNECT_IRQ, 1);
-        axp.enableIRQ( AXP202_PEK_LONGPRESS_IRQ | AXP202_PEK_SHORTPRESS_IRQ, 1 );
-        axp.clearIRQ();
-      }
-      int ndevices = scanI2Cdevice();
-      if (sonde.fingerprint != 17 || ndevices > 0) break; // only retry for fingerprint 17 (startup problems of new t-beam with oled)
-      delay(500);
-    }
-  }
-  if (sonde.config.batt_adc >= 0) {
-    pinMode(sonde.config.batt_adc, INPUT);
-  }
-  if (sonde.config.power_pout >= 0) { // for a heltec v2, pull GPIO21 low for display power
-    pinMode(sonde.config.power_pout & 127, OUTPUT);
-    digitalWrite(sonde.config.power_pout & 127, sonde.config.power_pout & 128 ? 1 : 0);
-  }
-
-  if (sonde.config.led_pout >= 0) {
-    pinMode(sonde.config.led_pout, OUTPUT);
-    flashLed(1000); // testing
-  }
-
-  button1.pin = sonde.config.button_pin;
-  button2.pin = sonde.config.button2_pin;
-  if (button1.pin != 0xff) {
-    if ( (button1.pin & 0x80) == 0 && button1.pin < 34 ) {
-      Serial.println("Button 1 configured as input with pullup");
-      pinMode(button1.pin, INPUT_PULLUP);
-    } else
-      pinMode(button1.pin, INPUT);  // configure as input if not disabled
-  }
-  if (button2.pin != 0xff) {
-    if ( (button2.pin & 0x80) == 0 && button2.pin < 34 ) {
-      Serial.println("Button 2 configured as input with pullup");
-      pinMode(button2.pin, INPUT_PULLUP);
-    } else
-      pinMode(button2.pin, INPUT);  // configure as input if not disabled
-  }
-  // Handle button press
-  if ( (button1.pin & 0x80) == 0) {
-    attachInterrupt( button1.pin, buttonISR, CHANGE);
-    Serial.printf("button1.pin is %d, attaching interrupt\n", button1.pin);
-  }
-  // Handle button press
-  if ( (button2.pin & 0x80) == 0) {
-    attachInterrupt( button2.pin, button2ISR, CHANGE);
-    Serial.printf("button2.pin is %d, attaching interrupt\n", button2.pin);
-  }
-  initTouch();
-
-  disp.init();
-  delay(100);
-  Serial.println("Showing welcome display");
-  disp.rdis->welcome();
-  delay(3000);
-  Serial.println("Clearing display");
-  sonde.clearDisplay();
-
-  setupWifiList();
-  Serial.printf("before disp.initFromFile... layouts is %p\n", disp.layouts);
-
-  disp.initFromFile(sonde.config.screenfile);
-  Serial.printf("disp.initFromFile... layouts is %p", disp.layouts);
-
-
-  // == show initial values from config.txt ========================= //
-  if (sonde.config.debug == 1) {
-    disp.rdis->setFont(FONT_SMALL);
-    disp.rdis->drawString(0, 0, "Config:");
-
-    delay(500);
-    itoa(sonde.config.oled_sda, buf, 10);
-    disp.rdis->drawString(0, 1, " SDA:");
-    disp.rdis->drawString(6, 1, buf);
-
-    delay(500);
-    itoa(sonde.config.oled_scl, buf, 10);
-    disp.rdis->drawString(0, 2, " SCL:");
-    disp.rdis->drawString(6, 2, buf);
-
-    delay(500);
-    itoa(sonde.config.oled_rst, buf, 10);
-    disp.rdis->drawString(0, 3, " RST:");
-    disp.rdis->drawString(6, 3, buf);
-
-    delay(1000);
-    itoa(sonde.config.led_pout, buf, 10);
-    disp.rdis->drawString(0, 4, " LED:");
-    disp.rdis->drawString(6, 4, buf);
-
-    delay(500);
-    itoa(sonde.config.spectrum, buf, 10);
-    disp.rdis->drawString(0, 5, " SPEC:");
-    disp.rdis->drawString(6, 5, buf);
-
-    delay(500);
-    itoa(sonde.config.maxsonde, buf, 10);
-    disp.rdis->drawString(0, 6, " MAX:");
-    disp.rdis->drawString(6, 6, buf);
-
-    delay(5000);
-    sonde.clearDisplay();
-  }
-  // == show initial values from config.txt ========================= //
-
-#if 1
-
-  if (sonde.config.type == TYPE_M5_CORE2) {
-    // Core2 uses Pin 38 for MISO
-    SPI.begin(18, 38, 23, -1);
-  } else {
-    SPI.begin();
-  }
-  //Set most significant bit first
-  SPI.setBitOrder(MSBFIRST);
-  //Divide the clock frequency
-  SPI.setClockDivider(SPI_CLOCK_DIV2);
-  //Set data mode
-  SPI.setDataMode(SPI_MODE0);
-
-  sx1278.setup(globalLock);
-
-  int i = 0;
-  while (++i < 3) {
-    delay(500);
-    // == check the radio chip by setting default frequency =========== //
-    sx1278.ON();
-    if (sx1278.setFrequency(402700000) == 0) {
-      Serial.println(F("Setting freq: SUCCESS "));
-    } else {
-      Serial.println(F("Setting freq: ERROR "));
-    }
-    float f = sx1278.getFrequency();
-    Serial.print("Frequency set to ");
-    Serial.println(f);
-    // == check the radio chip by setting default frequency =========== //
-  }
-#endif
-
-  //sx1278.setLNAGain(-48);
-  sx1278.setLNAGain(0);
-
-  int gain = sx1278.getLNAGain();
-  Serial.print("RX LNA Gain is ");
-  Serial.println(gain);
-
-  // Print a success message
-  Serial.println(F("SX1278 configuration finished"));
-
-  Serial.println("Setup finished");
-  Serial.println();
-  // int returnValue = pthread_create(&wifithread, NULL, wifiloop, (void *)0);
-
-  //  if (returnValue) {
-  //     Serial.println("An error has occurred");
-  //  }
-  //   xTaskCreate(mainloop, "MainServer", 10240, NULL, 10, NULL);
-
-
-  // == setup default channel list if qrg.txt read fails =========== //
-  sonde.clearSonde();
-  setupChannelList();
-  /// not here, done by sonde.setup(): rs41.setup();
-  // == setup default channel list if qrg.txt read fails =========== //
-#ifndef DISABLE_SX1278
-  xTaskCreate( sx1278Task, "sx1278Task",
-               10000, /* stack size */
-               NULL, /* paramter */
-               1, /* priority */
-               NULL);  /* task handle*/
-#endif
-  sonde.setup();
-  initGPS();
-
-  WiFi.onEvent(WiFiEvent);
-  getKeyPress();    // clear key buffer
-}
-
 void enterMode(int mode) {
   Serial.printf("enterMode(%d)\n", mode);
   // Backround RX task should only be active in mode ST_DECODER for now
@@ -2255,267 +1959,6 @@ void parseGpsJson(char *data) {
 static char rdzData[RDZ_DATA_LEN];
 static int rdzDataPos = 0;
 
-void loopDecoder() {
-  // sonde knows the current type and frequency, and delegates to the right decoder
-  uint16_t res = sonde.waitRXcomplete();
-  int action;
-  //Serial.printf("waitRX result is %x\n", (int)res);
-  action = (int)(res >> 8);
-  // TODO: update displayed sonde?
-
-#if 0
-  static int i = 0;
-  if (i++ > 20) {
-    i = 0;
-    rtc_wdt_protect_off();
-    rtc_wdt_disable();
-    // Requires serial speed 921600, otherweise interrupt wdt will occur
-    heap_caps_dump(MALLOC_CAP_8BIT);
-  }
-#endif
-
-  if (action != ACT_NONE) {
-    int newact = sonde.updateState(action);
-    Serial.printf("MAIN: loopDecoder: action %02x (%s) => %d  [current: main=%d, rxtask=%d]\n", action, action2text(action), newact, sonde.currentSonde, rxtask.currentSonde);
-    action = newact;
-    if (action != 255) {
-      if (action == ACT_DISPLAY_SPECTRUM) {
-        enterMode(ST_SPECTRUM);
-        return;
-      }
-      else if (action == ACT_DISPLAY_WIFI) {
-        enterMode(ST_WIFISCAN);
-        return;
-      }
-    }
-  }
-
-  if (!tncclient.connected()) {
-    //Serial.println("TNC client not connected");
-    tncclient = tncserver.available();
-    if (tncclient.connected()) {
-      Serial.println("new TCP KISS connection");
-    }
-  }
-  if (tncclient.available()) {
-    Serial.print("TCP KISS socket: recevied ");
-    while (tncclient.available()) {
-      Serial.print(tncclient.read());  // Check if we receive anything from from APRSdroid
-    }
-    Serial.println("");
-  }
-  if (rdzserver.hasClient()) {
-    Serial.println("TCP JSON socket: new connection");
-    rdzclient.stop();
-    rdzclient = rdzserver.available();
-  }
-  if (rdzclient.available()) {
-    Serial.print("RDZ JSON socket: received ");
-    while (rdzclient.available()) {
-      char c = (char)rdzclient.read();
-      Serial.print(c);
-      if (c == '\n' || c == '}' || rdzDataPos >= RDZ_DATA_LEN) {
-        // parse GPS position from phone
-        rdzData[rdzDataPos] = c;
-        if (rdzDataPos > 2) parseGpsJson(rdzData);
-        rdzDataPos = 0;
-      }
-      else {
-        rdzData[rdzDataPos++] = c;
-      }
-    }
-    Serial.println("");
-  }
-
-#if FEATURE_SONDEHUB
-  sondehub_reply_handler(&shclient);
-#endif
-
-  // wifi active and good packet received => send packet
-  SondeInfo *s = &sonde.sondeList[rxtask.receiveSonde];
-  if ((res & 0xff) == 0 && connected) {
-    //Send a packet with position information
-    // first check if ID and position lat+lonis ok
-
-    if (s->d.validID && ((s->d.validPos & 0x03) == 0x03)) {
-      char *str = aprs_senddata(s, sonde.config.call, sonde.config.objcall, sonde.config.udpfeed.symbol);
-      char raw[201];
-      int rawlen = aprsstr_mon2raw(str, raw, APRS_MAXLEN);
-      Serial.println("Sending AXUDP");
-      //Serial.println(raw);
-      udp.beginPacket(sonde.config.udpfeed.host, sonde.config.udpfeed.port);
-      udp.write((const uint8_t *)raw, rawlen);
-      udp.endPacket();
-      if (tncclient.connected()) {
-        Serial.println("Sending position via TCP");
-        char raw[201];
-        int rawlen = aprsstr_mon2kiss(str, raw, APRS_MAXLEN);
-        Serial.print("sending: "); Serial.println(raw);
-        tncclient.write(raw, rawlen);
-      }
-      if (sonde.config.tcpfeed.active) {
-        static unsigned long lasttcp = 0;
-        if ( tcpclient.disconnected()) {
-          tcpclient.connect(sonde.config.tcpfeed.host, sonde.config.tcpfeed.port);
-        }
-        else if ( tcpclient.connected() ) {
-          unsigned long now = millis();
-	  Serial.printf("aprs: now-last = %ld\n", (now-lasttcp));
-          if ( (now - lasttcp) > sonde.config.tcpfeed.highrate * 1000L ) {
-            strcat(str, "\r\n");
-            Serial.print(str);
-            tcpclient.write(str, strlen(str));
-            lasttcp = now;
-          }
-        }
-      }
-#if FEATURE_CHASEMAPPER
-      if (sonde.config.cm.active) {
-        Chasemapper::send(udp, s);
-      }
-#endif
-    }
-#if FEATURE_SONDEHUB
-    if (sonde.config.sondehub.active) {
-      sondehub_send_data(&shclient, s, &sonde.config.sondehub);
-    }
-#endif
-
-#if FEATURE_MQTT
-    // send to MQTT if enabledson
-    if (connected && mqttEnabled) {
-      Serial.println("Sending sonde info via MQTT");
-      mqttclient.publishPacket(s);
-    }
-#endif
-  } else {
-#if FEATURE_SONDEHUB
-    sondehub_finish_data(&shclient, s, &sonde.config.sondehub);
-#endif
-  }
-  // Send own position periodically
-  if (sonde.config.tcpfeed.active) {
-    aprs_station_update();
-  }
-  // always send data, even if not valid....
-  if (rdzclient.connected()) {
-    Serial.println("Sending position via TCP as rdzJSON");
-    char raw[1024];
-    char gps[128];
-    const char *typestr = s->d.typestr;
-    if (*typestr == 0) typestr = sondeTypeStr[sonde.realType(s)];
-    // TODO: only if GPS is valid...
-    if (gpsPos.valid) {
-      snprintf(gps, 128, ", \"gpslat\": %f,"
-               "\"gpslon\": %f,"
-               "\"gpsalt\": %d,"
-               "\"gpsacc\": %d,"
-               "\"gpsdir\": %d",
-               gpsPos.lat, gpsPos.lon, gpsPos.alt, gpsPos.accuracy, gpsPos.course);
-    } else {
-      *gps = 0;
-    }
-    //
-    raw[0] = '{';
-    // Use same JSON format as for MQTT and HTML map........
-    sonde2json(raw+1, 1023, s);
-    sprintf(raw+strlen(raw),
-	",\"active\":%d"
-	",\"validId\":%d"
-	",\"validPos\":%d"
-	" %s}\n",
-	(int)s->active,
-	s->d.validID,
-	s->d.validPos,
-	gps);
-    int len = strlen(raw);
-#if 0
-    //maintain backwords compatibility
-    float lat = isnan(s->d.lat) ? 0 : s->d.lat;
-    float lon = isnan(s->d.lon) ? 0 : s->d.lon;
-    float alt = isnan(s->d.alt) ? -1 : s->d.alt;
-    float vs = isnan(s->d.vs) ? 0 : s->d.vs;
-    float hs = isnan(s->d.hs) ? 0 : s->d.hs;
-    float dir = isnan(s->d.dir) ? 0 : s->d.dir;
-
-    int len = snprintf(raw, 1024, "{"
-                       "\"res\": %d,"
-                       "\"type\": \"%s\","
-                       "\"active\": %d,"
-                       "\"freq\": %.2f,"
-                       "\"id\": \"%s\","
-                       "\"ser\": \"%s\","
-                       "\"validId\": %d,"
-                       "\"launchsite\": \"%s\","
-                       "\"lat\": %.5f,"
-                       "\"lon\": %.5f,"
-                       "\"alt\": %.1f,"
-                       "\"vs\": %.1f,"
-                       "\"hs\": %.1f,"
-                       "\"dir\": %.1f,"
-                       "\"sats\": %d,"
-                       "\"validPos\": %d,"
-                       "\"time\": %d,"
-                       "\"frame\": %d,"
-                       "\"validTime\": %d,"
-                       "\"rssi\": %d,"
-                       "\"afc\": %d,"
-                       "\"launchKT\": %d,"
-                       "\"burstKT\": %d,"
-                       "\"countKT\": %d,"
-                       "\"crefKT\": %d"
-                       "%s"
-                       "}\n",
-                       res & 0xff,
-                       typestr,
-                       (int)s->active,
-                       s->freq,
-                       s->d.id,
-                       s->d.ser,
-                       (int)s->d.validID,
-                       s->launchsite,
-                       lat,
-                       lon,
-                       alt,
-                       vs,
-                       hs,
-                       dir,
-                       s->d.sats,
-                       s->d.validPos,
-                       s->d.time,
-                       s->d.frame,
-                       (int)s->d.validTime,
-                       s->rssi,
-                       s->afc,
-                       s->d.launchKT,
-                       s->d.burstKT,
-                       s->d.countKT,
-                       s->d.crefKT,
-                       gps
-                      );
-#endif
-
-    //Serial.println("Writing rdzclient...");
-    if (len > 1024) len = 1024;
-    int wlen = rdzclient.write(raw, len);
-    if (wlen != len) {
-      Serial.println("Writing rdzClient not OK, closing connection");
-      rdzclient.stop();
-    }
-    //Serial.println("Writing rdzclient OK");
-  }
-  Serial.print("MAIN: updateDisplay started\n");
-  sonde.dispsavectlOFF( (res & 0xff) == 0 );  // handle screen saver (disp auto off)
-  if (forceReloadScreenConfig) {
-    disp.initFromFile(sonde.config.screenfile);
-    sonde.clearDisplay();
-    forceReloadScreenConfig = false;
-  }
-  int t = millis();
-  sonde.updateDisplay();
-  Serial.printf("MAIN: updateDisplay done (after %d ms)\n", (int)(millis() - t));
-}
-
 void setCurrentDisplay(int value) {
   Serial.printf("setCurrentDisplay: setting index %d, entry %d\b", value, sonde.config.display[value]);
   currentDisplay = sonde.config.display[value];
@@ -2596,549 +2039,11 @@ String translateEncryptionType(wifi_auth_mode_t encryptionType) {
   }
 }
 
-enum t_wifi_state { WIFI_DISABLED, WIFI_SCAN, WIFI_CONNECT, WIFI_CONNECTED, WIFI_APMODE };
-
-static t_wifi_state wifi_state = WIFI_DISABLED;
-
-void enableNetwork(bool enable) {
-  if (enable) {
-    MDNS.begin(sonde.config.mdnsname);
-    SetupAsyncServer();
-    udp.begin(WiFi.localIP(), LOCALUDPPORT);
-    MDNS.addService("http", "tcp", 80);
-    MDNS.addService("kiss-tnc", "tcp", 14580);
-    MDNS.addService("jsonrdz", "tcp", 14570);
-    if (sonde.config.kisstnc.active) {
-      tncserver.begin();
-      rdzserver.begin();
-    }
-#if FEATURE_MQTT
-    if (sonde.config.mqtt.active && strlen(sonde.config.mqtt.host) > 0) {
-      mqttEnabled = true;
-      mqttclient.init(sonde.config.mqtt.host, sonde.config.mqtt.port, sonde.config.mqtt.id, sonde.config.mqtt.username, sonde.config.mqtt.password, sonde.config.mqtt.prefix);
-    }
-#endif
-#if FEATURE_SONDEHUB
-    if (sonde.config.sondehub.active && wifi_state != WIFI_APMODE) {
-      time_last_update = millis() + 1000; /* force sending update */
-      sondehub_station_update(&shclient, &sonde.config.sondehub);
-    }
-#endif
-    configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
-    connected = true;
-  } else {
-    MDNS.end();
-    connected = false;
-  }
-  tcpclient.onConnect([](void *arg, AsyncClient * s) {
-    Serial.write("APRS: TCP connected\n");
-    char buf[128];
-    snprintf(buf, 128, "user %s pass %d vers %s %s\r\n", sonde.config.call, sonde.config.passcode, version_name, version_id);
-    s->write(buf, strlen(buf));
-  });
-  tcpclient.onData([](void *arg, AsyncClient * c, void *data, size_t len) {
-    Serial.write((const uint8_t *)data, len);
-  });
-  Serial.println("enableNetwork done");
-}
-
-// Events used only for debug output right now
-void WiFiEvent(WiFiEvent_t event)
-{
-  Serial.printf("[WiFi-event] event: %d\n", event);
-
-  switch (event) {
-    case SYSTEM_EVENT_WIFI_READY:
-      Serial.println("WiFi interface ready");
-      break;
-    case SYSTEM_EVENT_SCAN_DONE:
-      Serial.println("Completed scan for access points");
-      break;
-    case SYSTEM_EVENT_STA_START:
-      Serial.println("WiFi client started");
-      break;
-    case SYSTEM_EVENT_STA_STOP:
-      Serial.println("WiFi clients stopped");
-      break;
-    case SYSTEM_EVENT_STA_CONNECTED:
-      Serial.println("Connected to access point");
-      break;
-    case SYSTEM_EVENT_STA_DISCONNECTED:
-      Serial.println("Disconnected from WiFi access point");
-      if (wifi_state == WIFI_CONNECT) {
-        // If we get a disconnect event while waiting for connection (as I do sometimes with my FritzBox),
-        // just start from scratch with WiFi scan
-        wifi_state = WIFI_DISABLED;
-        WiFi.disconnect(true);
-      }
-      break;
-    case SYSTEM_EVENT_STA_AUTHMODE_CHANGE:
-      Serial.println("Authentication mode of access point has changed");
-      break;
-    case SYSTEM_EVENT_STA_GOT_IP:
-      Serial.print("Obtained IP address: ");
-      Serial.println(WiFi.localIP());
-      break;
-    case SYSTEM_EVENT_STA_LOST_IP:
-      Serial.println("Lost IP address and IP address is reset to 0");
-      break;
-    case SYSTEM_EVENT_STA_WPS_ER_SUCCESS:
-      Serial.println("WiFi Protected Setup (WPS): succeeded in enrollee mode");
-      break;
-    case SYSTEM_EVENT_STA_WPS_ER_FAILED:
-      Serial.println("WiFi Protected Setup (WPS): failed in enrollee mode");
-      break;
-    case SYSTEM_EVENT_STA_WPS_ER_TIMEOUT:
-      Serial.println("WiFi Protected Setup (WPS): timeout in enrollee mode");
-      break;
-    case SYSTEM_EVENT_STA_WPS_ER_PIN:
-      Serial.println("WiFi Protected Setup (WPS): pin code in enrollee mode");
-      break;
-    case SYSTEM_EVENT_AP_START:
-      Serial.println("WiFi access point started");
-      break;
-    case SYSTEM_EVENT_AP_STOP:
-      Serial.println("WiFi access point  stopped");
-      break;
-    case SYSTEM_EVENT_AP_STACONNECTED:
-      Serial.println("Client connected");
-      break;
-    case SYSTEM_EVENT_AP_STADISCONNECTED:
-      Serial.println("Client disconnected");
-      break;
-    case SYSTEM_EVENT_AP_STAIPASSIGNED:
-      Serial.println("Assigned IP address to client");
-      break;
-    case SYSTEM_EVENT_AP_PROBEREQRECVED:
-      Serial.println("Received probe request");
-      break;
-    case SYSTEM_EVENT_GOT_IP6:
-      Serial.println("IPv6 is preferred");
-      break;
-    case SYSTEM_EVENT_ETH_START:
-      Serial.println("Ethernet started");
-      break;
-    case SYSTEM_EVENT_ETH_STOP:
-      Serial.println("Ethernet stopped");
-      break;
-    case SYSTEM_EVENT_ETH_CONNECTED:
-      Serial.println("Ethernet connected");
-      break;
-    case SYSTEM_EVENT_ETH_DISCONNECTED:
-      Serial.println("Ethernet disconnected");
-      break;
-    case SYSTEM_EVENT_ETH_GOT_IP:
-      Serial.println("Obtained IP address");
-      break;
-    default:
-      break;
-  }
-}
-
-
-void wifiConnect(int16_t res) {
-  Serial.printf("WiFi scan result: found %d networks\n", res);
-
-  // pick best network
-  int bestEntry = -1;
-  int bestRSSI = INT_MIN;
-  uint8_t bestBSSID[6];
-  int32_t bestChannel = 0;
-
-  for (int8_t i = 0; i < res; i++) {
-    String ssid_scan;
-    int32_t rssi_scan;
-    uint8_t sec_scan;
-    uint8_t* BSSID_scan;
-    int32_t chan_scan;
-    WiFi.getNetworkInfo(i, ssid_scan, sec_scan, rssi_scan, BSSID_scan, chan_scan);
-    int networkEntry = fetchWifiIndex(ssid_scan.c_str());
-    if (networkEntry < 0) continue;
-    if (rssi_scan <= bestRSSI) continue;
-    bestEntry = networkEntry;
-    bestRSSI = rssi_scan;
-    bestChannel = chan_scan;
-    memcpy((void*) &bestBSSID, (void*) BSSID_scan, sizeof(bestBSSID));
-  }
-  WiFi.scanDelete();
-  if (bestEntry >= 0) {
-    Serial.printf("WiFi Connecting BSSID: %02X:%02X:%02X:%02X:%02X:%02X SSID: %s PW %s Channel: %d (RSSI %d)\n", bestBSSID[0], bestBSSID[1], bestBSSID[2], bestBSSID[3], bestBSSID[4], bestBSSID[5], fetchWifiSSID(bestEntry), fetchWifiPw(bestEntry), bestChannel, bestRSSI);
-    WiFi.begin(fetchWifiSSID(bestEntry), fetchWifiPw(bestEntry), bestChannel, bestBSSID);
-    wifi_state = WIFI_CONNECT;
-  } else {
-    // rescan
-    // wifiStart();
-    WiFi.disconnect(true);
-    wifi_state = WIFI_DISABLED;
-  }
-}
-
-static int wifi_cto;
-
-void loopWifiBackground() {
-  // Serial.printf("WifiBackground: state %d\n", wifi_state);
-  // handle Wifi station mode in background
-  if (sonde.config.wifi == 0 || sonde.config.wifi == 2) return; // nothing to do if disabled or access point mode
-
-  if (wifi_state == WIFI_DISABLED) {  // stopped => start can
-    wifi_state = WIFI_SCAN;
-    Serial.println("WiFi start scan");
-    WiFi.scanNetworks(true); // scan in async mode
-  } else if (wifi_state == WIFI_SCAN) {
-    int16_t res = WiFi.scanComplete();
-    if (res == 0 || res == WIFI_SCAN_FAILED) {
-      // retry
-      Serial.println("WiFi restart scan");
-      WiFi.disconnect(true);
-      wifi_state = WIFI_DISABLED;
-      return;
-    }
-    if (res == WIFI_SCAN_RUNNING) {
-      return;
-    }
-    // Scan finished, try to connect
-    wifiConnect(res);
-    wifi_cto = 0;
-  } else if (wifi_state == WIFI_CONNECT) {
-    wifi_cto++;
-    if (WiFi.isConnected()) {
-      wifi_state = WIFI_CONNECTED;
-      // update IP in display
-      String localIPstr = WiFi.localIP().toString();
-      sonde.setIP(localIPstr.c_str(), false);
-      sonde.updateDisplayIP();
-      enableNetwork(true);
-    }
-    if (wifi_cto > 20) { // failed, restart scanning
-      wifi_state = WIFI_DISABLED;
-      WiFi.disconnect(true);
-    }
-  } else if (wifi_state == WIFI_CONNECTED) {
-    if (!WiFi.isConnected()) {
-      sonde.setIP("", false);
-      sonde.updateDisplayIP();
-
-      wifi_state = WIFI_DISABLED;  // restart scan
-      enableNetwork(false);
-      WiFi.disconnect(true);
-    }
-  }
-}
-
-void startAP() {
-  Serial.println("Activating access point mode");
-  wifi_state = WIFI_APMODE;
-  WiFi.softAP(networks[0].id.c_str(), networks[0].pw.c_str());
-
-  Serial.println("Wait 100 ms for AP_START...");
-  delay(100);
-  Serial.println(WiFi.softAPConfig(IPAddress (192, 168, 4, 1), IPAddress (0, 0, 0, 0), IPAddress (255, 255, 255, 0)) ? "Ready" : "Failed!");
-
-  IPAddress myIP = WiFi.softAPIP();
-  String myIPstr = myIP.toString();
-  sonde.setIP(myIPstr.c_str(), true);
-  sonde.updateDisplayIP();
-  // enableNetwork(true); done later in WifiLoop.
-}
-
-void initialMode() {
-  if (sonde.config.touch_thresh == 0) {
-    enterMode(ST_TOUCHCALIB);
-    return;
-  }
-  if (sonde.config.spectrum != -1) {    // enable Spectrum in config.txt: spectrum=number_of_seconds
-    startSpectrumDisplay();
-  } else {
-    setCurrentDisplay(0);
-    enterMode(ST_DECODER);
-  }
-}
-
-void loopTouchCalib() {
-  uint8_t dispw, disph, dispxs, dispys;
-  disp.rdis->clear();
-  disp.rdis->getDispSize(&disph, &dispw, &dispxs, &dispys);
-  char num[10];
-
-  while (1) {
-    int t1 = touchRead(button1.pin & 0x7f);
-    int t2 = touchRead(button2.pin & 0x7f);
-    disp.rdis->setFont(FONT_LARGE);
-    disp.rdis->drawString(0, 0, "Touch calib.");
-    disp.rdis->drawString(0, 3 * dispys, "Touch1: ");
-    snprintf(num, 10, "%d  ", t1);
-    disp.rdis->drawString(8 * dispxs, 3 * dispys, num);
-    disp.rdis->drawString(0, 6 * dispys, "Touch2: ");
-    snprintf(num, 10, "%d  ", t2);
-    disp.rdis->drawString(8 * dispxs, 6 * dispys, num);
-    delay(300);
-  }
-}
-
-// Wifi modes
-// 0: disabled. directly start initial mode (spectrum or scanner)
-// 1: station mode in background. directly start initial mode (spectrum or scanner)
-// 2: access point mode in background. directly start initial mode (spectrum or scanner)
-// 3: traditional sync. WifiScan. Tries to connect to a network, in case of failure activates AP.
-//    Mode 3 shows more debug information on serial port and display.
-#define MAXWIFIDELAY 40
-static const char* _scan[2] = {"/", "\\"};
-void loopWifiScan() {
-  if (sonde.config.wifi == 0) {   // no Wifi
-    wifi_state = WIFI_DISABLED;
-    initialMode();
-    return;
-  }
-  if (sonde.config.wifi == 1) { // station mode, setup in background
-    wifi_state = WIFI_DISABLED;  // will start scanning in wifiLoopBackgroiund
-    initialMode();
-    return;
-  }
-  if (sonde.config.wifi == 2) { // AP mode, setup in background
-    startAP();
-    enableNetwork(true);
-    initialMode();
-    return;
-  }
-  // wifi==3 => original mode with non-async wifi setup
-  disp.rdis->setFont(FONT_SMALL);
-  disp.rdis->drawString(0, 0, "WiFi Scan...");
-  uint8_t dispw, disph, dispxs, dispys;
-  disp.rdis->getDispSize(&disph, &dispw, &dispxs, &dispys);
-
-  int line = 0;
-  int cnt = 0;
-
-  WiFi.disconnect(true);
-  WiFi.mode(WIFI_STA);
-  int index = -1;
-  int n = WiFi.scanNetworks();
-  for (int i = 0; i < n; i++) {
-    String ssid = WiFi.SSID(i);
-    disp.rdis->drawString(0, dispys * (1 + line), ssid.c_str());
-    line = (line + 1) % (disph / dispys);
-    String mac = WiFi.BSSIDstr(i);
-    String encryptionTypeDescription = translateEncryptionType(WiFi.encryptionType(i));
-    Serial.printf("Network %s: RSSI %d, MAC %s, enc: %s\n", ssid.c_str(), WiFi.RSSI(i), mac.c_str(), encryptionTypeDescription.c_str());
-    int curidx = fetchWifiIndex(ssid.c_str());
-    if (curidx >= 0 && index == -1) {
-      index = curidx;
-      Serial.printf("Match found at scan entry %d, config network %d\n", i, index);
-    }
-  }
-  int lastl = (disph / dispys - 2) * dispys;
-  if (index >= 0) { // some network was found
-    Serial.print("Connecting to: "); Serial.print(fetchWifiSSID(index));
-    Serial.print(" with password "); Serial.println(fetchWifiPw(index));
-
-    disp.rdis->drawString(0, lastl, "Conn:");
-    disp.rdis->drawString(6 * dispxs, lastl, fetchWifiSSID(index));
-    WiFi.begin(fetchWifiSSID(index), fetchWifiPw(index));
-    while (WiFi.status() != WL_CONNECTED && cnt < MAXWIFIDELAY)  {
-      delay(500);
-      Serial.print(".");
-      disp.rdis->drawString(15 * dispxs, lastl + dispys, _scan[cnt & 1]);
-      cnt++;
-    }
-  }
-  if (index < 0 || cnt >= MAXWIFIDELAY) { // no network found, or connect not successful
-    WiFi.disconnect(true);
-    delay(1000);
-    startAP();
-    IPAddress myIP = WiFi.softAPIP();
-    Serial.print("AP IP address: ");
-    Serial.println(myIP);
-    disp.rdis->drawString(0, lastl, "AP:             ");
-    disp.rdis->drawString(6 * dispxs, lastl + 1, networks[0].id.c_str());
-    delay(3000);
-  } else {
-    Serial.println("");
-    Serial.println("WiFi connected");
-    Serial.println("IP address: ");
-    String localIPstr = WiFi.localIP().toString();
-    Serial.println(localIPstr);
-    sonde.setIP(localIPstr.c_str(), false);
-    sonde.updateDisplayIP();
-    wifi_state = WIFI_CONNECTED;
-    bool hasRS92 = false;
-    for (int i = 0; i < MAXSONDE; i++) {
-      if (sonde.sondeList[i].type == STYPE_RS92) hasRS92 = true;
-    }
-    if (hasRS92) {
-      geteph();
-      if (ephstate == EPH_PENDING) ephstate = EPH_ERROR;
-      get_eph("/brdc");
-    }
-    delay(3000);
-  }
-  enableNetwork(true);
-  initialMode();
-}
-
-
 /// Testing OTA Updates
 /// somewhat based on Arduino's AWS_S3_OTA_Update
 // Utility to extract header value from headers
 String getHeaderValue(String header, String headerName) {
   return header.substring(strlen(headerName.c_str()));
-}
-
-// OTA Logic
-void execOTA() {
-  int contentLength = 0;
-  bool isValidContentType = false;
-  sonde.clearDisplay();
-  uint8_t dispxs, dispys;
-  if ( ISOLED(sonde.config) ) {
-    disp.rdis->setFont(FONT_SMALL);
-    dispxs = dispys = 1;
-    char uh[17];
-    strncpy(uh, updateHost, 17);
-    uh[16] = 0;
-    disp.rdis->drawString(0, 0, uh);
-  } else {
-    disp.rdis->setFont(5);
-    dispxs = 18;
-    dispys = 20;
-    disp.rdis->drawString(0, 0, updateHost);
-  }
-
-  Serial.print("Connecting to: "); Serial.println(updateHost);
-  // Connect to Update host
-  if (!client.connect(updateHost, updatePort)) {
-    Serial.println("Connection to " + String(updateHost) + " failed. Please check your setup");
-    return;
-  }
-
-  // First, update file system
-  Serial.println("Fetching fs update");
-  disp.rdis->drawString(0, 1 * dispys, "Fetching fs...");
-  client.printf("GET %supdate.fs.bin HTTP/1.1\r\n"
-                "Host: %s\r\n"
-                "Cache-Control: no-cache\r\n"
-                "Connection: close\r\n\r\n", updatePrefix, updateHost);
-  // see if we get some data....
-
-  int type = 0;
-  int res = fetchHTTPheader(&type);
-  if (res < 0) {
-    return;
-  }
-  // process data...
-  while (client.available()) {
-    // get header...
-    char fn[128];
-    fn[0] = '/';
-    client.readBytesUntil('\n', fn + 1, 128);
-    char *sz = strchr(fn, ' ');
-    if (!sz) {
-      client.stop();
-      return;
-    }
-    *sz = 0;
-    int len = atoi(sz + 1);
-    Serial.printf("Updating file %s (%d bytes)\n", fn, len);
-    char fnstr[17];
-    memset(fnstr, ' ', 16);
-    strncpy(fnstr, fn, 16);
-    fnstr[16] = 0;
-    disp.rdis->drawString(0, 2 * dispys, fnstr);
-    File f = SPIFFS.open(fn, FILE_WRITE);
-    // read sz bytes........
-    while (len > 0) {
-      unsigned char buf[1024];
-      int r = client.read(buf, len > 1024 ? 1024 : len);
-      if (r == -1) {
-        client.stop();
-        return;
-      }
-      f.write(buf, r);
-      len -= r;
-    }
-  }
-  client.stop();
-
-  Serial.print("Connecting to: "); Serial.println(updateHost);
-  // Connect to Update host
-  if (!client.connect(updateHost, updatePort)) {
-    Serial.println("Connection to " + String(updateHost) + " failed. Please check your setup");
-    return;
-  }
-
-  // Connection succeeded, fecthing the bin
-  Serial.printf("Fetching bin: %supdate.ino.bin\n", updatePrefix);
-  disp.rdis->drawString(0, 3 * dispys, "Fetching update");
-
-  // Get the contents of the bin file
-  client.printf("GET %supdate.ino.bin HTTP/1.1\r\n"
-                "Host: %s\r\n"
-                "Cache-Control: no-cache\r\n"
-                "Connection: close\r\n\r\n",
-                updatePrefix, updateHost);
-
-  // Check what is being sent
-  //    Serial.print(String("GET ") + bin + " HTTP/1.1\r\n" +
-  //                 "Host: " + host + "\r\n" +
-  //                 "Cache-Control: no-cache\r\n" +
-  //                 "Connection: close\r\n\r\n");
-
-  int validType = 0;
-  contentLength = fetchHTTPheader( &validType );
-  if (validType == 1) isValidContentType = true;
-
-  // Check what is the contentLength and if content type is `application/octet-stream`
-  Serial.println("contentLength : " + String(contentLength) + ", isValidContentType : " + String(isValidContentType));
-  disp.rdis->drawString(0, 4 * dispys, "Len: ");
-  String cls = String(contentLength);
-  disp.rdis->drawString(5 * dispxs, 4 * dispys, cls.c_str());
-
-  // check contentLength and content type
-  if (contentLength && isValidContentType) {
-    // Check if there is enough to OTA Update
-    bool canBegin = Update.begin(contentLength);
-
-    // If yes, begin
-    if (canBegin) {
-      disp.rdis->drawString(0, 5 * dispys, "Starting update");
-      Serial.println("Begin OTA. This may take 2 - 5 mins to complete. Things might be quite for a while.. Patience!");
-      // No activity would appear on the Serial monitor
-      // So be patient. This may take 2 - 5mins to complete
-      size_t written = Update.writeStream(client);
-
-      if (written == contentLength) {
-        Serial.println("Written : " + String(written) + " successfully");
-      } else {
-        Serial.println("Written only : " + String(written) + "/" + String(contentLength) + ". Retry?" );
-        // retry??
-        // execOTA();
-      }
-
-      if (Update.end()) {
-        Serial.println("OTA done!");
-        if (Update.isFinished()) {
-          Serial.println("Update successfully completed. Rebooting.");
-          disp.rdis->drawString(0, 7 * dispys, "Rebooting....");
-          delay(1000);
-          ESP.restart();
-        } else {
-          Serial.println("Update not finished? Something went wrong!");
-        }
-      } else {
-        Serial.println("Error Occurred. Error #: " + String(Update.getError()));
-      }
-    } else {
-      // not enough space to begin OTA
-      // Understand the partitions and
-      // space availability
-      Serial.println("Not enough space to begin OTA");
-      client.flush();
-    }
-  } else {
-    Serial.println("There was no content in the response");
-    client.flush();
-  }
-  // Back to some normal state
-  enterMode(ST_DECODER);
 }
 
 int fetchHTTPheader(int *validType) {
@@ -3213,91 +2118,9 @@ int fetchHTTPheader(int *validType) {
   return contentLength;
 }
 
+enum t_wifi_state { WIFI_DISABLED, WIFI_SCAN, WIFI_CONNECT, WIFI_CONNECTED, WIFI_APMODE };
 
-
-void loop() {
-  Serial.printf("\nMAIN: Running loop in state %d [currentDisp:%d, lastDisp:%d]. free heap: %d, unused stack: %d\n",
-                mainState, currentDisplay, lastDisplay, ESP.getFreeHeap(), uxTaskGetStackHighWaterMark(0));
-  switch (mainState) {
-    case ST_DECODER:
-#ifndef DISABLE_MAINRX
-      loopDecoder();
-#else
-      delay(1000);
-#endif
-      break;
-    case ST_SPECTRUM: loopSpectrum(); break;
-    case ST_WIFISCAN: loopWifiScan(); break;
-    case ST_UPDATE: execOTA(); break;
-    case ST_TOUCHCALIB: loopTouchCalib(); break;
-  }
-#if 0
-  int rssi = sx1278.getRSSI();
-  Serial.print("  RSSI: ");
-  Serial.print(rssi);
-
-  int gain = sx1278.getLNAGain();
-  Serial.print(" LNA Gain: "),
-               Serial.println(gain);
-#endif
-  loopWifiBackground();
-  if (currentDisplay != lastDisplay && (mainState == ST_DECODER)) {
-    disp.setLayout(currentDisplay);
-    sonde.clearDisplay();
-    sonde.updateDisplay();
-    lastDisplay = currentDisplay;
-  }
-
-#if FEATURE_MQTT
-  int now = millis();
-  if (mqttEnabled && (lastMqttUptime == 0 || (lastMqttUptime + 60000 < now) || (lastMqttUptime > now))) {
-    mqttclient.publishUptime();
-    lastMqttUptime = now;
-  }
-#endif
-
-}
-
-void aprs_station_update() {
-  int chase = sonde.config.chase;
-  // automatically decided if CHASE or FIXED mode is used (for config AUTO)
-  if (chase == SH_LOC_AUTO) {
-    if (SH_LOC_AUTO_IS_CHASE) chase = SH_LOC_CHASE; else chase = SH_LOC_FIXED;
-  }
-  unsigned long time_now = millis();
-  unsigned long time_delta = time_now - time_last_aprs_update;
-  unsigned long update_time = (chase == SH_LOC_CHASE) ? APRS_MOBILE_STATION_UPDATE_TIME : APRS_STATION_UPDATE_TIME;
-  Serial.printf("aprs_station_update: delta: %ld, update in %ld\n", time_delta, update_time);
-  if (time_delta < update_time) return;
-  Serial.println("Update is due!!");
-
-  float lat, lon;
-  if (chase == SH_LOC_FIXED) {
-    // fixed location
-    lat = sonde.config.rxlat;
-    lon = sonde.config.rxlon;
-    if (isnan(lat) || isnan(lon)) return;
-  } else {
-    if (gpsPos.valid) {
-      lat = gpsPos.lat;
-      lon = gpsPos.lon;
-    } else {
-      return;
-    }
-  }
-  Serial.printf("Really updating!! (objcall is %s)", sonde.config.objcall);
-  char *bcn = aprs_send_beacon(sonde.config.call, lat, lon, sonde.config.beaconsym + ((chase==SH_LOC_CHASE)?2:0), sonde.config.comment);
-  if ( tcpclient.disconnected()) {
-    tcpclient.connect(sonde.config.tcpfeed.host, sonde.config.tcpfeed.port);
-  }
-  if ( tcpclient.connected() ) {
-    strcat(bcn, "\r\n");
-    Serial.println("****BEACON****");
-    Serial.print(bcn);
-    tcpclient.write(bcn, strlen(bcn));
-    time_last_aprs_update = time_now;
-  }
-}
+static t_wifi_state wifi_state = WIFI_DISABLED;
 
 #if FEATURE_SONDEHUB
 // Sondehub v2 DB related codes
@@ -3427,7 +2250,30 @@ enum SHState { SH_DISCONNECTED, SH_CONNECTING, SH_CONN_IDLE, SH_CONN_APPENDING, 
 SHState shState = SH_DISCONNECTED;
 time_t shStart = 0;
 
+void sondehub_send_fimport(WiFiClient * client) {
+  if (shState == SH_CONN_APPENDING || shState == SH_CONN_WAITACK) {
+    // Currently busy with SondeHub data upload
+    // So do nothing here.
+    // sond_fimport will be re-sent later, when shState becomes SH_CONN_IDLE
+    return;
+  }
+  // It's time to run, so check prerequisites
+  float lat = sonde.config.rxlat, lon = sonde.config.rxlon;
+  if (gpsPos.valid) {
+    lat = gpsPos.lat;
+    lon = gpsPos.lon;
+  }
 
+  int maxdist = sonde.config.sondehub.fimaxdist;      // km
+  int maxage = sonde.config.sondehub.fimaxage * 60;   // fimaxage is hours, shImportSendRequest uses minutes
+  int fiinterval = sonde.config.sondehub.fiinterval;
+  Serial.printf("shimp : %f %f %d %d %d\n", lat, lon, maxdist, maxage, shImportInterval);
+  if ( !isnan(lat) && !isnan(lon) && maxdist > 0 && maxage > 0 && fiinterval > 0 ) {
+    int res = ShFreqImport::shImportSendRequest(&shclient, lat, lon, maxdist, maxage);
+    if (res == 0) shImport = 1; // Request OK: wait for response
+    else shImport = 2;        // Request failed: wait interval, then retry
+  }
+}
 
 void sondehub_reply_handler(WiFiClient * client) {
   // sondehub handler for tasks to be done even if no data is to be sent:
@@ -3503,29 +2349,55 @@ void sondehub_reply_handler(WiFiClient * client) {
   }
 }
 
-void sondehub_send_fimport(WiFiClient * client) {
-  if (shState == SH_CONN_APPENDING || shState == SH_CONN_WAITACK) {
-    // Currently busy with SondeHub data upload
-    // So do nothing here.
-    // sond_fimport will be re-sent later, when shState becomes SH_CONN_IDLE
-    return;
-  }
-  // It's time to run, so check prerequisites
-  float lat = sonde.config.rxlat, lon = sonde.config.rxlon;
-  if (gpsPos.valid) {
-    lat = gpsPos.lat;
-    lon = gpsPos.lon;
-  }
+static const char *DAYS[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
+static const char *MONTHS[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Noc", "Dec"};
 
-  int maxdist = sonde.config.sondehub.fimaxdist;      // km
-  int maxage = sonde.config.sondehub.fimaxage * 60;   // fimaxage is hours, shImportSendRequest uses minutes
-  int fiinterval = sonde.config.sondehub.fiinterval;
-  Serial.printf("shimp : %f %f %d %d %d\n", lat, lon, maxdist, maxage, shImportInterval);
-  if ( !isnan(lat) && !isnan(lon) && maxdist > 0 && maxage > 0 && fiinterval > 0 ) {
-    int res = ShFreqImport::shImportSendRequest(&shclient, lat, lon, maxdist, maxage);
-    if (res == 0) shImport = 1; // Request OK: wait for response
-    else shImport = 2;        // Request failed: wait interval, then retry
+void sondehub_send_header(WiFiClient * client, SondeInfo * s, struct st_sondehub * conf, struct tm * now) {
+  Serial.print("PUT /sondes/telemetry HTTP/1.1\r\n"
+               "Host: ");
+  Serial.println(conf->host);
+  Serial.print("accept: text/plain\r\n"
+               "Content-Type: application/json\r\n"
+               "Transfer-Encoding: chunked\r\n");
+
+  client->print("PUT /sondes/telemetry HTTP/1.1\r\n"
+                "Host: ");
+  client->println(conf->host);
+  client->print("accept: text/plain\r\n"
+                "Content-Type: application/json\r\n"
+                "Transfer-Encoding: chunked\r\n");
+  if (now) {
+    Serial.printf("Date: %s, %02d %s %04d %02d:%02d:%02d GMT\r\n",
+                  DAYS[now->tm_wday], now->tm_mday, MONTHS[now->tm_mon], now->tm_year + 1900,
+                  now->tm_hour, now->tm_min, now->tm_sec);
+    client->printf("Date: %s, %02d %s %04d %02d:%02d:%02d GMT\r\n",
+                   DAYS[now->tm_wday], now->tm_mday, MONTHS[now->tm_mon], now->tm_year + 1900,
+                   now->tm_hour, now->tm_min, now->tm_sec);
   }
+  client->print("User-agent: ");
+  client->print(version_name);
+  client->print("/");
+  client->println(version_id);
+  client->println(""); // another cr lf as indication of end of header
+}
+
+void sondehub_send_next(WiFiClient * client, SondeInfo * s, struct st_sondehub * conf, char *chunk, int chunklen, int first) {
+  // send next chunk of JSON request
+  client->printf("%x\r\n", chunklen + 1);
+  client->write(first ? "[" : ",", 1);
+  client->write(chunk, chunklen);
+  client->print("\r\n");
+
+  Serial.printf("%x\r\n", chunklen + 1);
+  Serial.write((const uint8_t *)(first ? "[" : ","), 1);
+  Serial.write((const uint8_t *)chunk, chunklen);
+  Serial.print("\r\n");
+}
+
+void sondehub_send_last(WiFiClient * client, SondeInfo * s, struct st_sondehub * conf) {
+  // last chunk. just the closing "]" of the json request
+  client->printf("1\r\n]\r\n0\r\n\r\n");
+  Serial.printf("1\r\n]\r\n0\r\n\r\n");
 }
 
 // in hours.... max allowed diff UTC <-> sonde time
@@ -3749,55 +2621,1162 @@ void sondehub_finish_data(WiFiClient * client, SondeInfo * s, struct st_sondehub
   }
 }
 
-static const char *DAYS[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
-static const char *MONTHS[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Noc", "Dec"};
-
-void sondehub_send_header(WiFiClient * client, SondeInfo * s, struct st_sondehub * conf, struct tm * now) {
-  Serial.print("PUT /sondes/telemetry HTTP/1.1\r\n"
-               "Host: ");
-  Serial.println(conf->host);
-  Serial.print("accept: text/plain\r\n"
-               "Content-Type: application/json\r\n"
-               "Transfer-Encoding: chunked\r\n");
-
-  client->print("PUT /sondes/telemetry HTTP/1.1\r\n"
-                "Host: ");
-  client->println(conf->host);
-  client->print("accept: text/plain\r\n"
-                "Content-Type: application/json\r\n"
-                "Transfer-Encoding: chunked\r\n");
-  if (now) {
-    Serial.printf("Date: %s, %02d %s %04d %02d:%02d:%02d GMT\r\n",
-                  DAYS[now->tm_wday], now->tm_mday, MONTHS[now->tm_mon], now->tm_year + 1900,
-                  now->tm_hour, now->tm_min, now->tm_sec);
-    client->printf("Date: %s, %02d %s %04d %02d:%02d:%02d GMT\r\n",
-                   DAYS[now->tm_wday], now->tm_mday, MONTHS[now->tm_mon], now->tm_year + 1900,
-                   now->tm_hour, now->tm_min, now->tm_sec);
-  }
-  client->print("User-agent: ");
-  client->print(version_name);
-  client->print("/");
-  client->println(version_id);
-  client->println(""); // another cr lf as indication of end of header
-}
-void sondehub_send_next(WiFiClient * client, SondeInfo * s, struct st_sondehub * conf, char *chunk, int chunklen, int first) {
-  // send next chunk of JSON request
-  client->printf("%x\r\n", chunklen + 1);
-  client->write(first ? "[" : ",", 1);
-  client->write(chunk, chunklen);
-  client->print("\r\n");
-
-  Serial.printf("%x\r\n", chunklen + 1);
-  Serial.write((const uint8_t *)(first ? "[" : ","), 1);
-  Serial.write((const uint8_t *)chunk, chunklen);
-  Serial.print("\r\n");
-}
-void sondehub_send_last(WiFiClient * client, SondeInfo * s, struct st_sondehub * conf) {
-  // last chunk. just the closing "]" of the json request
-  client->printf("1\r\n]\r\n0\r\n\r\n");
-  Serial.printf("1\r\n]\r\n0\r\n\r\n");
-}
-
-
 // End of sondehub v2 related codes
 #endif
+
+// Events used only for debug output right now
+void WiFiEvent(WiFiEvent_t event)
+{
+  Serial.printf("[WiFi-event] event: %d\n", event);
+
+  switch (event) {
+    case SYSTEM_EVENT_WIFI_READY:
+      Serial.println("WiFi interface ready");
+      break;
+    case SYSTEM_EVENT_SCAN_DONE:
+      Serial.println("Completed scan for access points");
+      break;
+    case SYSTEM_EVENT_STA_START:
+      Serial.println("WiFi client started");
+      break;
+    case SYSTEM_EVENT_STA_STOP:
+      Serial.println("WiFi clients stopped");
+      break;
+    case SYSTEM_EVENT_STA_CONNECTED:
+      Serial.println("Connected to access point");
+      break;
+    case SYSTEM_EVENT_STA_DISCONNECTED:
+      Serial.println("Disconnected from WiFi access point");
+      if (wifi_state == WIFI_CONNECT) {
+        // If we get a disconnect event while waiting for connection (as I do sometimes with my FritzBox),
+        // just start from scratch with WiFi scan
+        wifi_state = WIFI_DISABLED;
+        WiFi.disconnect(true);
+      }
+      break;
+    case SYSTEM_EVENT_STA_AUTHMODE_CHANGE:
+      Serial.println("Authentication mode of access point has changed");
+      break;
+    case SYSTEM_EVENT_STA_GOT_IP:
+      Serial.print("Obtained IP address: ");
+      Serial.println(WiFi.localIP());
+      break;
+    case SYSTEM_EVENT_STA_LOST_IP:
+      Serial.println("Lost IP address and IP address is reset to 0");
+      break;
+    case SYSTEM_EVENT_STA_WPS_ER_SUCCESS:
+      Serial.println("WiFi Protected Setup (WPS): succeeded in enrollee mode");
+      break;
+    case SYSTEM_EVENT_STA_WPS_ER_FAILED:
+      Serial.println("WiFi Protected Setup (WPS): failed in enrollee mode");
+      break;
+    case SYSTEM_EVENT_STA_WPS_ER_TIMEOUT:
+      Serial.println("WiFi Protected Setup (WPS): timeout in enrollee mode");
+      break;
+    case SYSTEM_EVENT_STA_WPS_ER_PIN:
+      Serial.println("WiFi Protected Setup (WPS): pin code in enrollee mode");
+      break;
+    case SYSTEM_EVENT_AP_START:
+      Serial.println("WiFi access point started");
+      break;
+    case SYSTEM_EVENT_AP_STOP:
+      Serial.println("WiFi access point  stopped");
+      break;
+    case SYSTEM_EVENT_AP_STACONNECTED:
+      Serial.println("Client connected");
+      break;
+    case SYSTEM_EVENT_AP_STADISCONNECTED:
+      Serial.println("Client disconnected");
+      break;
+    case SYSTEM_EVENT_AP_STAIPASSIGNED:
+      Serial.println("Assigned IP address to client");
+      break;
+    case SYSTEM_EVENT_AP_PROBEREQRECVED:
+      Serial.println("Received probe request");
+      break;
+    case SYSTEM_EVENT_GOT_IP6:
+      Serial.println("IPv6 is preferred");
+      break;
+    case SYSTEM_EVENT_ETH_START:
+      Serial.println("Ethernet started");
+      break;
+    case SYSTEM_EVENT_ETH_STOP:
+      Serial.println("Ethernet stopped");
+      break;
+    case SYSTEM_EVENT_ETH_CONNECTED:
+      Serial.println("Ethernet connected");
+      break;
+    case SYSTEM_EVENT_ETH_DISCONNECTED:
+      Serial.println("Ethernet disconnected");
+      break;
+    case SYSTEM_EVENT_ETH_GOT_IP:
+      Serial.println("Obtained IP address");
+      break;
+    default:
+      break;
+  }
+}
+
+void wifiConnect(int16_t res) {
+  Serial.printf("WiFi scan result: found %d networks\n", res);
+
+  // pick best network
+  int bestEntry = -1;
+  int bestRSSI = INT_MIN;
+  uint8_t bestBSSID[6];
+  int32_t bestChannel = 0;
+
+  for (int8_t i = 0; i < res; i++) {
+    String ssid_scan;
+    int32_t rssi_scan;
+    uint8_t sec_scan;
+    uint8_t* BSSID_scan;
+    int32_t chan_scan;
+    WiFi.getNetworkInfo(i, ssid_scan, sec_scan, rssi_scan, BSSID_scan, chan_scan);
+    int networkEntry = fetchWifiIndex(ssid_scan.c_str());
+    if (networkEntry < 0) continue;
+    if (rssi_scan <= bestRSSI) continue;
+    bestEntry = networkEntry;
+    bestRSSI = rssi_scan;
+    bestChannel = chan_scan;
+    memcpy((void*) &bestBSSID, (void*) BSSID_scan, sizeof(bestBSSID));
+  }
+  WiFi.scanDelete();
+  if (bestEntry >= 0) {
+    Serial.printf("WiFi Connecting BSSID: %02X:%02X:%02X:%02X:%02X:%02X SSID: %s PW %s Channel: %d (RSSI %d)\n", bestBSSID[0], bestBSSID[1], bestBSSID[2], bestBSSID[3], bestBSSID[4], bestBSSID[5], fetchWifiSSID(bestEntry), fetchWifiPw(bestEntry), bestChannel, bestRSSI);
+    WiFi.begin(fetchWifiSSID(bestEntry), fetchWifiPw(bestEntry), bestChannel, bestBSSID);
+    wifi_state = WIFI_CONNECT;
+  } else {
+    // rescan
+    // wifiStart();
+    WiFi.disconnect(true);
+    wifi_state = WIFI_DISABLED;
+  }
+}
+
+static int wifi_cto;
+
+void execOTA() {
+  int contentLength = 0;
+  bool isValidContentType = false;
+  sonde.clearDisplay();
+  uint8_t dispxs, dispys;
+  if ( ISOLED(sonde.config) ) {
+    disp.rdis->setFont(FONT_SMALL);
+    dispxs = dispys = 1;
+    char uh[17];
+    strncpy(uh, updateHost, 17);
+    uh[16] = 0;
+    disp.rdis->drawString(0, 0, uh);
+  } else {
+    disp.rdis->setFont(5);
+    dispxs = 18;
+    dispys = 20;
+    disp.rdis->drawString(0, 0, updateHost);
+  }
+
+  Serial.print("Connecting to: "); Serial.println(updateHost);
+  // Connect to Update host
+  if (!client.connect(updateHost, updatePort)) {
+    Serial.println("Connection to " + String(updateHost) + " failed. Please check your setup");
+    return;
+  }
+
+  // First, update file system
+  Serial.println("Fetching fs update");
+  disp.rdis->drawString(0, 1 * dispys, "Fetching fs...");
+  client.printf("GET %supdate.fs.bin HTTP/1.1\r\n"
+                "Host: %s\r\n"
+                "Cache-Control: no-cache\r\n"
+                "Connection: close\r\n\r\n", updatePrefix, updateHost);
+  // see if we get some data....
+
+  int type = 0;
+  int res = fetchHTTPheader(&type);
+  if (res < 0) {
+    return;
+  }
+  // process data...
+  while (client.available()) {
+    // get header...
+    char fn[128];
+    fn[0] = '/';
+    client.readBytesUntil('\n', fn + 1, 128);
+    char *sz = strchr(fn, ' ');
+    if (!sz) {
+      client.stop();
+      return;
+    }
+    *sz = 0;
+    int len = atoi(sz + 1);
+    Serial.printf("Updating file %s (%d bytes)\n", fn, len);
+    char fnstr[17];
+    memset(fnstr, ' ', 16);
+    strncpy(fnstr, fn, 16);
+    fnstr[16] = 0;
+    disp.rdis->drawString(0, 2 * dispys, fnstr);
+    File f = SPIFFS.open(fn, FILE_WRITE);
+    // read sz bytes........
+    while (len > 0) {
+      unsigned char buf[1024];
+      int r = client.read(buf, len > 1024 ? 1024 : len);
+      if (r == -1) {
+        client.stop();
+        return;
+      }
+      f.write(buf, r);
+      len -= r;
+    }
+  }
+  client.stop();
+
+  Serial.print("Connecting to: "); Serial.println(updateHost);
+  // Connect to Update host
+  if (!client.connect(updateHost, updatePort)) {
+    Serial.println("Connection to " + String(updateHost) + " failed. Please check your setup");
+    return;
+  }
+
+  // Connection succeeded, fecthing the bin
+  Serial.printf("Fetching bin: %supdate.ino.bin\n", updatePrefix);
+  disp.rdis->drawString(0, 3 * dispys, "Fetching update");
+
+  // Get the contents of the bin file
+  client.printf("GET %supdate.ino.bin HTTP/1.1\r\n"
+                "Host: %s\r\n"
+                "Cache-Control: no-cache\r\n"
+                "Connection: close\r\n\r\n",
+                updatePrefix, updateHost);
+
+  // Check what is being sent
+  //    Serial.print(String("GET ") + bin + " HTTP/1.1\r\n" +
+  //                 "Host: " + host + "\r\n" +
+  //                 "Cache-Control: no-cache\r\n" +
+  //                 "Connection: close\r\n\r\n");
+
+  int validType = 0;
+  contentLength = fetchHTTPheader( &validType );
+  if (validType == 1) isValidContentType = true;
+
+  // Check what is the contentLength and if content type is `application/octet-stream`
+  Serial.println("contentLength : " + String(contentLength) + ", isValidContentType : " + String(isValidContentType));
+  disp.rdis->drawString(0, 4 * dispys, "Len: ");
+  String cls = String(contentLength);
+  disp.rdis->drawString(5 * dispxs, 4 * dispys, cls.c_str());
+
+  // check contentLength and content type
+  if (contentLength && isValidContentType) {
+    // Check if there is enough to OTA Update
+    bool canBegin = Update.begin(contentLength);
+
+    // If yes, begin
+    if (canBegin) {
+      disp.rdis->drawString(0, 5 * dispys, "Starting update");
+      Serial.println("Begin OTA. This may take 2 - 5 mins to complete. Things might be quite for a while.. Patience!");
+      // No activity would appear on the Serial monitor
+      // So be patient. This may take 2 - 5mins to complete
+      size_t written = Update.writeStream(client);
+
+      if (written == contentLength) {
+        Serial.println("Written : " + String(written) + " successfully");
+      } else {
+        Serial.println("Written only : " + String(written) + "/" + String(contentLength) + ". Retry?" );
+        // retry??
+        // execOTA();
+      }
+
+      if (Update.end()) {
+        Serial.println("OTA done!");
+        if (Update.isFinished()) {
+          Serial.println("Update successfully completed. Rebooting.");
+          disp.rdis->drawString(0, 7 * dispys, "Rebooting....");
+          delay(1000);
+          ESP.restart();
+        } else {
+          Serial.println("Update not finished? Something went wrong!");
+        }
+      } else {
+        Serial.println("Error Occurred. Error #: " + String(Update.getError()));
+      }
+    } else {
+      // not enough space to begin OTA
+      // Understand the partitions and
+      // space availability
+      Serial.println("Not enough space to begin OTA");
+      client.flush();
+    }
+  } else {
+    Serial.println("There was no content in the response");
+    client.flush();
+  }
+  // Back to some normal state
+  enterMode(ST_DECODER);
+}
+
+void enableNetwork(bool enable) {
+  if (enable) {
+    MDNS.begin(sonde.config.mdnsname);
+    SetupAsyncServer();
+    udp.begin(WiFi.localIP(), LOCALUDPPORT);
+    MDNS.addService("http", "tcp", 80);
+    MDNS.addService("kiss-tnc", "tcp", 14580);
+    MDNS.addService("jsonrdz", "tcp", 14570);
+    if (sonde.config.kisstnc.active) {
+      tncserver.begin();
+      rdzserver.begin();
+    }
+#if FEATURE_MQTT
+    if (sonde.config.mqtt.active && strlen(sonde.config.mqtt.host) > 0) {
+      mqttEnabled = true;
+      mqttclient.init(sonde.config.mqtt.host, sonde.config.mqtt.port, sonde.config.mqtt.id, sonde.config.mqtt.username, sonde.config.mqtt.password, sonde.config.mqtt.prefix);
+    }
+#endif
+#if FEATURE_SONDEHUB
+    if (sonde.config.sondehub.active && wifi_state != WIFI_APMODE) {
+      time_last_update = millis() + 1000; /* force sending update */
+      sondehub_station_update(&shclient, &sonde.config.sondehub);
+    }
+#endif
+    configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+    connected = true;
+  } else {
+    MDNS.end();
+    connected = false;
+  }
+  tcpclient.onConnect([](void *arg, AsyncClient * s) {
+    Serial.write("APRS: TCP connected\n");
+    char buf[128];
+    snprintf(buf, 128, "user %s pass %d vers %s %s\r\n", sonde.config.call, sonde.config.passcode, version_name, version_id);
+    s->write(buf, strlen(buf));
+  });
+  tcpclient.onData([](void *arg, AsyncClient * c, void *data, size_t len) {
+    Serial.write((const uint8_t *)data, len);
+  });
+  Serial.println("enableNetwork done");
+}
+
+void loopWifiBackground() {
+  // Serial.printf("WifiBackground: state %d\n", wifi_state);
+  // handle Wifi station mode in background
+  if (sonde.config.wifi == 0 || sonde.config.wifi == 2) return; // nothing to do if disabled or access point mode
+
+  if (wifi_state == WIFI_DISABLED) {  // stopped => start can
+    wifi_state = WIFI_SCAN;
+    Serial.println("WiFi start scan");
+    WiFi.scanNetworks(true); // scan in async mode
+  } else if (wifi_state == WIFI_SCAN) {
+    int16_t res = WiFi.scanComplete();
+    if (res == 0 || res == WIFI_SCAN_FAILED) {
+      // retry
+      Serial.println("WiFi restart scan");
+      WiFi.disconnect(true);
+      wifi_state = WIFI_DISABLED;
+      return;
+    }
+    if (res == WIFI_SCAN_RUNNING) {
+      return;
+    }
+    // Scan finished, try to connect
+    wifiConnect(res);
+    wifi_cto = 0;
+  } else if (wifi_state == WIFI_CONNECT) {
+    wifi_cto++;
+    if (WiFi.isConnected()) {
+      wifi_state = WIFI_CONNECTED;
+      // update IP in display
+      String localIPstr = WiFi.localIP().toString();
+      sonde.setIP(localIPstr.c_str(), false);
+      sonde.updateDisplayIP();
+      enableNetwork(true);
+    }
+    if (wifi_cto > 20) { // failed, restart scanning
+      wifi_state = WIFI_DISABLED;
+      WiFi.disconnect(true);
+    }
+  } else if (wifi_state == WIFI_CONNECTED) {
+    if (!WiFi.isConnected()) {
+      sonde.setIP("", false);
+      sonde.updateDisplayIP();
+
+      wifi_state = WIFI_DISABLED;  // restart scan
+      enableNetwork(false);
+      WiFi.disconnect(true);
+    }
+  }
+}
+
+void startAP() {
+  Serial.println("Activating access point mode");
+  wifi_state = WIFI_APMODE;
+  WiFi.softAP(networks[0].id.c_str(), networks[0].pw.c_str());
+
+  Serial.println("Wait 100 ms for AP_START...");
+  delay(100);
+  Serial.println(WiFi.softAPConfig(IPAddress (192, 168, 4, 1), IPAddress (0, 0, 0, 0), IPAddress (255, 255, 255, 0)) ? "Ready" : "Failed!");
+
+  IPAddress myIP = WiFi.softAPIP();
+  String myIPstr = myIP.toString();
+  sonde.setIP(myIPstr.c_str(), true);
+  sonde.updateDisplayIP();
+  // enableNetwork(true); done later in WifiLoop.
+}
+
+void initialMode() {
+  if (sonde.config.touch_thresh == 0) {
+    enterMode(ST_TOUCHCALIB);
+    return;
+  }
+  if (sonde.config.spectrum != -1) {    // enable Spectrum in config.txt: spectrum=number_of_seconds
+    startSpectrumDisplay();
+  } else {
+    setCurrentDisplay(0);
+    enterMode(ST_DECODER);
+  }
+}
+
+// Wifi modes
+// 0: disabled. directly start initial mode (spectrum or scanner)
+// 1: station mode in background. directly start initial mode (spectrum or scanner)
+// 2: access point mode in background. directly start initial mode (spectrum or scanner)
+// 3: traditional sync. WifiScan. Tries to connect to a network, in case of failure activates AP.
+//    Mode 3 shows more debug information on serial port and display.
+#define MAXWIFIDELAY 40
+static const char* _scan[2] = {"/", "\\"};
+
+void aprs_station_update() {
+  int chase = sonde.config.chase;
+  // automatically decided if CHASE or FIXED mode is used (for config AUTO)
+  if (chase == SH_LOC_AUTO) {
+    if (SH_LOC_AUTO_IS_CHASE) chase = SH_LOC_CHASE; else chase = SH_LOC_FIXED;
+  }
+  unsigned long time_now = millis();
+  unsigned long time_delta = time_now - time_last_aprs_update;
+  unsigned long update_time = (chase == SH_LOC_CHASE) ? APRS_MOBILE_STATION_UPDATE_TIME : APRS_STATION_UPDATE_TIME;
+  Serial.printf("aprs_station_update: delta: %ld, update in %ld\n", time_delta, update_time);
+  if (time_delta < update_time) return;
+  Serial.println("Update is due!!");
+
+  float lat, lon;
+  if (chase == SH_LOC_FIXED) {
+    // fixed location
+    lat = sonde.config.rxlat;
+    lon = sonde.config.rxlon;
+    if (isnan(lat) || isnan(lon)) return;
+  } else {
+    if (gpsPos.valid) {
+      lat = gpsPos.lat;
+      lon = gpsPos.lon;
+    } else {
+      return;
+    }
+  }
+  Serial.printf("Really updating!! (objcall is %s)", sonde.config.objcall);
+  char *bcn = aprs_send_beacon(sonde.config.call, lat, lon, sonde.config.beaconsym + ((chase==SH_LOC_CHASE)?2:0), sonde.config.comment);
+  if ( tcpclient.disconnected()) {
+    tcpclient.connect(sonde.config.tcpfeed.host, sonde.config.tcpfeed.port);
+  }
+  if ( tcpclient.connected() ) {
+    strcat(bcn, "\r\n");
+    Serial.println("****BEACON****");
+    Serial.print(bcn);
+    tcpclient.write(bcn, strlen(bcn));
+    time_last_aprs_update = time_now;
+  }
+}
+
+void setup() {
+  char buf[12];
+  // Open serial communications and wait for port to open:
+  Serial.begin(/*921600 */115200);
+  for (int i = 0; i < 39; i++) {
+    int v = gpio_get_level((gpio_num_t)i);
+    Serial.printf("%d:%d ", i, v);
+  }
+  Serial.println("");
+  #ifdef ESP_MEM_DEBUG
+  esp_err_t error = heap_caps_register_failed_alloc_callback(heap_caps_alloc_failed_hook);
+  #endif
+  axpSemaphore = xSemaphoreCreateBinary();
+  xSemaphoreGive(axpSemaphore);
+
+  for (int i = 0; i < 39; i++) {
+    Serial.printf("%d:%d ", i, initlevels[i]);
+  }
+  Serial.println(" (before setup)");
+  sonde.defaultConfig();  // including autoconfiguration
+  aprs_gencrctab();
+
+  Serial.println("Initializing SPIFFS");
+  // Initialize SPIFFS
+  if (!SPIFFS.begin(true)) {
+    Serial.println("An Error has occurred while mounting SPIFFS");
+    return;
+  }
+
+  Serial.println("Reading initial configuration");
+  setupConfigData();    // configuration must be read first due to OLED ports!!!
+  WiFi.setHostname(sonde.config.mdnsname);
+
+  // NOT TTGO v1 (fingerprint 64) or Heltec v1/v2 board (fingerprint 4)
+  // and NOT TTGO Lora32 v2.1_1.6 (fingerprint 31/63)
+  if ( ( (sonde.fingerprint & (64 + 31)) != 31) && ((sonde.fingerprint & 16) == 16) ) {
+    // FOr T-Beam 1.0
+    for (int i = 0; i < 10; i++) { // try multiple times
+      Wire.begin(21, 22);
+      // Make sure the whole thing powers up!?!?!?!?!?
+      U8X8 *u8x8 = new U8X8_SSD1306_128X64_NONAME_HW_I2C(0, 22, 21);
+      u8x8->initDisplay();
+      delay(500);
+
+      scanI2Cdevice();
+      if (!axp.begin(Wire, AXP192_SLAVE_ADDRESS)) {
+        Serial.println("AXP192 Begin PASS");
+      } else {
+        Serial.println("AXP192 Begin FAIL");
+      }
+      axp.setPowerOutPut(AXP192_LDO2, AXP202_ON);
+      if (sonde.config.type == TYPE_M5_CORE2) {
+        // Display backlight on M5 Core2
+        axp.setPowerOutPut(AXP192_DCDC3, AXP202_ON);
+        axp.setDCDC3Voltage(3300);
+	// SetBusPowerMode(0):
+	// #define AXP192_GPIO0_CTL                        (0x90)
+	// #define AXP192_GPIO0_VOL                        (0x91)
+	// #define AXP202_LDO234_DC23_CTL                  (0x12)
+
+	// The axp class lacks a functino to set GPIO0 VDO to 3.3V (as is done by original M5Stack software)
+	// so do this manually (default value 2.8V did not have the expected effect :))
+	// data = Read8bit(0x91);
+        // write1Byte(0x91, (data & 0X0F) | 0XF0);
+	uint8_t reg;
+	Wire.beginTransmission((uint8_t)AXP192_SLAVE_ADDRESS);
+	Wire.write(AXP192_GPIO0_VOL);
+	Wire.endTransmission();
+	Wire.requestFrom(AXP192_SLAVE_ADDRESS, 1);
+	reg = Wire.read();
+	reg = (reg&0x0F) | 0xF0;
+	Wire.beginTransmission((uint8_t)AXP192_SLAVE_ADDRESS);
+	Wire.write(AXP192_GPIO0_VOL);
+	Wire.write(reg);
+	Wire.endTransmission();
+	// data = Read8bit(0x90);
+        // Write1Byte(0x90, (data & 0XF8) | 0X02)
+	axp.setGPIOMode(AXP_GPIO_0, AXP_IO_LDO_MODE);  // disable AXP supply from VBUS
+        pmu_irq = 2; // IRQ pin is not connected on Core2
+	// data = Read8bit(0x12);         //read reg 0x12
+        // Write1Byte(0x12, data | 0x40);    // enable 3,3V => 5V booster
+	// this is done below anyway: axp.setPowerOutPut(AXP192_EXTEN, AXP202_ON);
+
+        axp.adc1Enable(AXP202_ACIN_VOL_ADC1, 1);
+        axp.adc1Enable(AXP202_ACIN_CUR_ADC1, 1);
+      } else {
+        // GPS on T-Beam, buzzer on M5 Core2
+        axp.setPowerOutPut(AXP192_LDO3, AXP202_ON);
+        axp.adc1Enable(AXP202_VBUS_VOL_ADC1, 1);
+        axp.adc1Enable(AXP202_VBUS_CUR_ADC1, 1);
+      }
+      axp.setPowerOutPut(AXP192_DCDC2, AXP202_ON);
+      axp.setPowerOutPut(AXP192_EXTEN, AXP202_ON);
+      axp.setPowerOutPut(AXP192_DCDC1, AXP202_ON);
+      axp.setDCDC1Voltage(3300);
+      axp.adc1Enable(AXP202_BATT_CUR_ADC1, 1);
+      if (sonde.config.button2_axp ) {
+        if (pmu_irq != 2) {
+          pinMode(PMU_IRQ, INPUT_PULLUP);
+          attachInterrupt(PMU_IRQ, [] {
+            pmu_irq = 1;
+          }, FALLING);
+        }
+        //axp.enableIRQ(AXP202_VBUS_REMOVED_IRQ | AXP202_VBUS_CONNECT_IRQ | AXP202_BATT_REMOVED_IRQ | AXP202_BATT_CONNECT_IRQ, 1);
+        axp.enableIRQ( AXP202_PEK_LONGPRESS_IRQ | AXP202_PEK_SHORTPRESS_IRQ, 1 );
+        axp.clearIRQ();
+      }
+      int ndevices = scanI2Cdevice();
+      if (sonde.fingerprint != 17 || ndevices > 0) break; // only retry for fingerprint 17 (startup problems of new t-beam with oled)
+      delay(500);
+    }
+  }
+  if (sonde.config.batt_adc >= 0) {
+    pinMode(sonde.config.batt_adc, INPUT);
+  }
+  if (sonde.config.power_pout >= 0) { // for a heltec v2, pull GPIO21 low for display power
+    pinMode(sonde.config.power_pout & 127, OUTPUT);
+    digitalWrite(sonde.config.power_pout & 127, sonde.config.power_pout & 128 ? 1 : 0);
+  }
+
+  if (sonde.config.led_pout >= 0) {
+    pinMode(sonde.config.led_pout, OUTPUT);
+    flashLed(1000); // testing
+  }
+
+  button1.pin = sonde.config.button_pin;
+  button2.pin = sonde.config.button2_pin;
+  if (button1.pin != 0xff) {
+    if ( (button1.pin & 0x80) == 0 && button1.pin < 34 ) {
+      Serial.println("Button 1 configured as input with pullup");
+      pinMode(button1.pin, INPUT_PULLUP);
+    } else
+      pinMode(button1.pin, INPUT);  // configure as input if not disabled
+  }
+  if (button2.pin != 0xff) {
+    if ( (button2.pin & 0x80) == 0 && button2.pin < 34 ) {
+      Serial.println("Button 2 configured as input with pullup");
+      pinMode(button2.pin, INPUT_PULLUP);
+    } else
+      pinMode(button2.pin, INPUT);  // configure as input if not disabled
+  }
+  // Handle button press
+  if ( (button1.pin & 0x80) == 0) {
+    attachInterrupt( button1.pin, buttonISR, CHANGE);
+    Serial.printf("button1.pin is %d, attaching interrupt\n", button1.pin);
+  }
+  // Handle button press
+  if ( (button2.pin & 0x80) == 0) {
+    attachInterrupt( button2.pin, button2ISR, CHANGE);
+    Serial.printf("button2.pin is %d, attaching interrupt\n", button2.pin);
+  }
+  initTouch();
+
+  disp.init();
+  delay(100);
+  Serial.println("Showing welcome display");
+  disp.rdis->welcome();
+  delay(3000);
+  Serial.println("Clearing display");
+  sonde.clearDisplay();
+
+  setupWifiList();
+  Serial.printf("before disp.initFromFile... layouts is %p\n", disp.layouts);
+
+  disp.initFromFile(sonde.config.screenfile);
+  Serial.printf("disp.initFromFile... layouts is %p", disp.layouts);
+
+
+  // == show initial values from config.txt ========================= //
+  if (sonde.config.debug == 1) {
+    disp.rdis->setFont(FONT_SMALL);
+    disp.rdis->drawString(0, 0, "Config:");
+
+    delay(500);
+    itoa(sonde.config.oled_sda, buf, 10);
+    disp.rdis->drawString(0, 1, " SDA:");
+    disp.rdis->drawString(6, 1, buf);
+
+    delay(500);
+    itoa(sonde.config.oled_scl, buf, 10);
+    disp.rdis->drawString(0, 2, " SCL:");
+    disp.rdis->drawString(6, 2, buf);
+
+    delay(500);
+    itoa(sonde.config.oled_rst, buf, 10);
+    disp.rdis->drawString(0, 3, " RST:");
+    disp.rdis->drawString(6, 3, buf);
+
+    delay(1000);
+    itoa(sonde.config.led_pout, buf, 10);
+    disp.rdis->drawString(0, 4, " LED:");
+    disp.rdis->drawString(6, 4, buf);
+
+    delay(500);
+    itoa(sonde.config.spectrum, buf, 10);
+    disp.rdis->drawString(0, 5, " SPEC:");
+    disp.rdis->drawString(6, 5, buf);
+
+    delay(500);
+    itoa(sonde.config.maxsonde, buf, 10);
+    disp.rdis->drawString(0, 6, " MAX:");
+    disp.rdis->drawString(6, 6, buf);
+
+    delay(5000);
+    sonde.clearDisplay();
+  }
+  // == show initial values from config.txt ========================= //
+
+  #if 1
+
+  if (sonde.config.type == TYPE_M5_CORE2) {
+    // Core2 uses Pin 38 for MISO
+    SPI.begin(18, 38, 23, -1);
+  } else {
+    SPI.begin();
+  }
+  //Set most significant bit first
+  SPI.setBitOrder(MSBFIRST);
+  //Divide the clock frequency
+  SPI.setClockDivider(SPI_CLOCK_DIV2);
+  //Set data mode
+  SPI.setDataMode(SPI_MODE0);
+
+  sx1278.setup(globalLock);
+
+  int i = 0;
+  while (++i < 3) {
+    delay(500);
+    // == check the radio chip by setting default frequency =========== //
+    sx1278.ON();
+    if (sx1278.setFrequency(402700000) == 0) {
+      Serial.println(F("Setting freq: SUCCESS "));
+    } else {
+      Serial.println(F("Setting freq: ERROR "));
+    }
+    float f = sx1278.getFrequency();
+    Serial.print("Frequency set to ");
+    Serial.println(f);
+    // == check the radio chip by setting default frequency =========== //
+  }
+  #endif
+
+  //sx1278.setLNAGain(-48);
+  sx1278.setLNAGain(0);
+
+  int gain = sx1278.getLNAGain();
+  Serial.print("RX LNA Gain is ");
+  Serial.println(gain);
+
+  // Print a success message
+  Serial.println(F("SX1278 configuration finished"));
+
+  Serial.println("Setup finished");
+  Serial.println();
+  // int returnValue = pthread_create(&wifithread, NULL, wifiloop, (void *)0);
+
+  //  if (returnValue) {
+  //     Serial.println("An error has occurred");
+  //  }
+  //   xTaskCreate(mainloop, "MainServer", 10240, NULL, 10, NULL);
+
+
+  // == setup default channel list if qrg.txt read fails =========== //
+  sonde.clearSonde();
+  setupChannelList();
+  /// not here, done by sonde.setup(): rs41.setup();
+  // == setup default channel list if qrg.txt read fails =========== //
+  #ifndef DISABLE_SX1278
+  xTaskCreate( sx1278Task, "sx1278Task",
+               10000, /* stack size */
+               NULL, /* paramter */
+               1, /* priority */
+               NULL);  /* task handle*/
+  #endif
+  sonde.setup();
+  initGPS();
+
+  WiFi.onEvent(WiFiEvent);
+  getKeyPress();    // clear key buffer
+}
+
+void loopTouchCalib() {
+  uint8_t dispw, disph, dispxs, dispys;
+  disp.rdis->clear();
+  disp.rdis->getDispSize(&disph, &dispw, &dispxs, &dispys);
+  char num[10];
+
+  while (1) {
+    int t1 = touchRead(button1.pin & 0x7f);
+    int t2 = touchRead(button2.pin & 0x7f);
+    disp.rdis->setFont(FONT_LARGE);
+    disp.rdis->drawString(0, 0, "Touch calib.");
+    disp.rdis->drawString(0, 3 * dispys, "Touch1: ");
+    snprintf(num, 10, "%d  ", t1);
+    disp.rdis->drawString(8 * dispxs, 3 * dispys, num);
+    disp.rdis->drawString(0, 6 * dispys, "Touch2: ");
+    snprintf(num, 10, "%d  ", t2);
+    disp.rdis->drawString(8 * dispxs, 6 * dispys, num);
+    delay(300);
+  }
+}
+
+void loopWifiScan() {
+  if (sonde.config.wifi == 0) {   // no Wifi
+    wifi_state = WIFI_DISABLED;
+    initialMode();
+    return;
+  }
+  if (sonde.config.wifi == 1) { // station mode, setup in background
+    wifi_state = WIFI_DISABLED;  // will start scanning in wifiLoopBackgroiund
+    initialMode();
+    return;
+  }
+  if (sonde.config.wifi == 2) { // AP mode, setup in background
+    startAP();
+    enableNetwork(true);
+    initialMode();
+    return;
+  }
+  // wifi==3 => original mode with non-async wifi setup
+  disp.rdis->setFont(FONT_SMALL);
+  disp.rdis->drawString(0, 0, "WiFi Scan...");
+  uint8_t dispw, disph, dispxs, dispys;
+  disp.rdis->getDispSize(&disph, &dispw, &dispxs, &dispys);
+
+  int line = 0;
+  int cnt = 0;
+
+  WiFi.disconnect(true);
+  WiFi.mode(WIFI_STA);
+  int index = -1;
+  int n = WiFi.scanNetworks();
+  for (int i = 0; i < n; i++) {
+    String ssid = WiFi.SSID(i);
+    disp.rdis->drawString(0, dispys * (1 + line), ssid.c_str());
+    line = (line + 1) % (disph / dispys);
+    String mac = WiFi.BSSIDstr(i);
+    String encryptionTypeDescription = translateEncryptionType(WiFi.encryptionType(i));
+    Serial.printf("Network %s: RSSI %d, MAC %s, enc: %s\n", ssid.c_str(), WiFi.RSSI(i), mac.c_str(), encryptionTypeDescription.c_str());
+    int curidx = fetchWifiIndex(ssid.c_str());
+    if (curidx >= 0 && index == -1) {
+      index = curidx;
+      Serial.printf("Match found at scan entry %d, config network %d\n", i, index);
+    }
+  }
+  int lastl = (disph / dispys - 2) * dispys;
+  if (index >= 0) { // some network was found
+    Serial.print("Connecting to: "); Serial.print(fetchWifiSSID(index));
+    Serial.print(" with password "); Serial.println(fetchWifiPw(index));
+
+    disp.rdis->drawString(0, lastl, "Conn:");
+    disp.rdis->drawString(6 * dispxs, lastl, fetchWifiSSID(index));
+    WiFi.begin(fetchWifiSSID(index), fetchWifiPw(index));
+    while (WiFi.status() != WL_CONNECTED && cnt < MAXWIFIDELAY)  {
+      delay(500);
+      Serial.print(".");
+      disp.rdis->drawString(15 * dispxs, lastl + dispys, _scan[cnt & 1]);
+      cnt++;
+    }
+  }
+  if (index < 0 || cnt >= MAXWIFIDELAY) { // no network found, or connect not successful
+    WiFi.disconnect(true);
+    delay(1000);
+    startAP();
+    IPAddress myIP = WiFi.softAPIP();
+    Serial.print("AP IP address: ");
+    Serial.println(myIP);
+    disp.rdis->drawString(0, lastl, "AP:             ");
+    disp.rdis->drawString(6 * dispxs, lastl + 1, networks[0].id.c_str());
+    delay(3000);
+  } else {
+    Serial.println("");
+    Serial.println("WiFi connected");
+    Serial.println("IP address: ");
+    String localIPstr = WiFi.localIP().toString();
+    Serial.println(localIPstr);
+    sonde.setIP(localIPstr.c_str(), false);
+    sonde.updateDisplayIP();
+    wifi_state = WIFI_CONNECTED;
+    bool hasRS92 = false;
+    for (int i = 0; i < MAXSONDE; i++) {
+      if (sonde.sondeList[i].type == STYPE_RS92) hasRS92 = true;
+    }
+    if (hasRS92) {
+      geteph();
+      if (ephstate == EPH_PENDING) ephstate = EPH_ERROR;
+      get_eph("/brdc");
+    }
+    delay(3000);
+  }
+  enableNetwork(true);
+  initialMode();
+}
+
+void loopDecoder() {
+  // sonde knows the current type and frequency, and delegates to the right decoder
+  uint16_t res = sonde.waitRXcomplete();
+  int action;
+  //Serial.printf("waitRX result is %x\n", (int)res);
+  action = (int)(res >> 8);
+  // TODO: update displayed sonde?
+
+  #if 0
+  static int i = 0;
+  if (i++ > 20) {
+    i = 0;
+    rtc_wdt_protect_off();
+    rtc_wdt_disable();
+    // Requires serial speed 921600, otherweise interrupt wdt will occur
+    heap_caps_dump(MALLOC_CAP_8BIT);
+  }
+  #endif
+
+  if (action != ACT_NONE) {
+    int newact = sonde.updateState(action);
+    Serial.printf("MAIN: loopDecoder: action %02x (%s) => %d  [current: main=%d, rxtask=%d]\n", action, action2text(action), newact, sonde.currentSonde, rxtask.currentSonde);
+    action = newact;
+    if (action != 255) {
+      if (action == ACT_DISPLAY_SPECTRUM) {
+        enterMode(ST_SPECTRUM);
+        return;
+      }
+      else if (action == ACT_DISPLAY_WIFI) {
+        enterMode(ST_WIFISCAN);
+        return;
+      }
+    }
+  }
+
+  if (!tncclient.connected()) {
+    //Serial.println("TNC client not connected");
+    tncclient = tncserver.available();
+    if (tncclient.connected()) {
+      Serial.println("new TCP KISS connection");
+    }
+  }
+  if (tncclient.available()) {
+    Serial.print("TCP KISS socket: recevied ");
+    while (tncclient.available()) {
+      Serial.print(tncclient.read());  // Check if we receive anything from from APRSdroid
+    }
+    Serial.println("");
+  }
+  if (rdzserver.hasClient()) {
+    Serial.println("TCP JSON socket: new connection");
+    rdzclient.stop();
+    rdzclient = rdzserver.available();
+  }
+  if (rdzclient.available()) {
+    Serial.print("RDZ JSON socket: received ");
+    while (rdzclient.available()) {
+      char c = (char)rdzclient.read();
+      Serial.print(c);
+      if (c == '\n' || c == '}' || rdzDataPos >= RDZ_DATA_LEN) {
+        // parse GPS position from phone
+        rdzData[rdzDataPos] = c;
+        if (rdzDataPos > 2) parseGpsJson(rdzData);
+        rdzDataPos = 0;
+      }
+      else {
+        rdzData[rdzDataPos++] = c;
+      }
+    }
+    Serial.println("");
+  }
+
+  #if FEATURE_SONDEHUB
+  sondehub_reply_handler(&shclient);
+  #endif
+
+  // wifi active and good packet received => send packet
+  SondeInfo *s = &sonde.sondeList[rxtask.receiveSonde];
+  if ((res & 0xff) == 0 && connected) {
+    //Send a packet with position information
+    // first check if ID and position lat+lonis ok
+
+    if (s->d.validID && ((s->d.validPos & 0x03) == 0x03)) {
+      char *str = aprs_senddata(s, sonde.config.call, sonde.config.objcall, sonde.config.udpfeed.symbol);
+      char raw[201];
+      int rawlen = aprsstr_mon2raw(str, raw, APRS_MAXLEN);
+      Serial.println("Sending AXUDP");
+      //Serial.println(raw);
+      udp.beginPacket(sonde.config.udpfeed.host, sonde.config.udpfeed.port);
+      udp.write((const uint8_t *)raw, rawlen);
+      udp.endPacket();
+      if (tncclient.connected()) {
+        Serial.println("Sending position via TCP");
+        char raw[201];
+        int rawlen = aprsstr_mon2kiss(str, raw, APRS_MAXLEN);
+        Serial.print("sending: "); Serial.println(raw);
+        tncclient.write(raw, rawlen);
+      }
+      if (sonde.config.tcpfeed.active) {
+        static unsigned long lasttcp = 0;
+        if ( tcpclient.disconnected()) {
+          tcpclient.connect(sonde.config.tcpfeed.host, sonde.config.tcpfeed.port);
+        }
+        else if ( tcpclient.connected() ) {
+          unsigned long now = millis();
+	  Serial.printf("aprs: now-last = %ld\n", (now-lasttcp));
+          if ( (now - lasttcp) > sonde.config.tcpfeed.highrate * 1000L ) {
+            strcat(str, "\r\n");
+            Serial.print(str);
+            tcpclient.write(str, strlen(str));
+            lasttcp = now;
+          }
+        }
+      }
+  #if FEATURE_CHASEMAPPER
+      if (sonde.config.cm.active) {
+        Chasemapper::send(udp, s);
+      }
+  #endif
+    }
+  #if FEATURE_SONDEHUB
+    if (sonde.config.sondehub.active) {
+      sondehub_send_data(&shclient, s, &sonde.config.sondehub);
+    }
+  #endif
+
+  #if FEATURE_MQTT
+    // send to MQTT if enabledson
+    if (connected && mqttEnabled) {
+      Serial.println("Sending sonde info via MQTT");
+      mqttclient.publishPacket(s);
+    }
+  #endif
+  } else {
+  #if FEATURE_SONDEHUB
+    sondehub_finish_data(&shclient, s, &sonde.config.sondehub);
+  #endif
+  }
+  // Send own position periodically
+  if (sonde.config.tcpfeed.active) {
+    aprs_station_update();
+  }
+  // always send data, even if not valid....
+  if (rdzclient.connected()) {
+    Serial.println("Sending position via TCP as rdzJSON");
+    char raw[1024];
+    char gps[128];
+    const char *typestr = s->d.typestr;
+    if (*typestr == 0) typestr = sondeTypeStr[sonde.realType(s)];
+    // TODO: only if GPS is valid...
+    if (gpsPos.valid) {
+      snprintf(gps, 128, ", \"gpslat\": %f,"
+               "\"gpslon\": %f,"
+               "\"gpsalt\": %d,"
+               "\"gpsacc\": %d,"
+               "\"gpsdir\": %d",
+               gpsPos.lat, gpsPos.lon, gpsPos.alt, gpsPos.accuracy, gpsPos.course);
+    } else {
+      *gps = 0;
+    }
+    //
+    raw[0] = '{';
+    // Use same JSON format as for MQTT and HTML map........
+    sonde2json(raw+1, 1023, s);
+    sprintf(raw+strlen(raw),
+	",\"active\":%d"
+	",\"validId\":%d"
+	",\"validPos\":%d"
+	" %s}\n",
+	(int)s->active,
+	s->d.validID,
+	s->d.validPos,
+	gps);
+    int len = strlen(raw);
+  #if 0
+    //maintain backwords compatibility
+    float lat = isnan(s->d.lat) ? 0 : s->d.lat;
+    float lon = isnan(s->d.lon) ? 0 : s->d.lon;
+    float alt = isnan(s->d.alt) ? -1 : s->d.alt;
+    float vs = isnan(s->d.vs) ? 0 : s->d.vs;
+    float hs = isnan(s->d.hs) ? 0 : s->d.hs;
+    float dir = isnan(s->d.dir) ? 0 : s->d.dir;
+
+    int len = snprintf(raw, 1024, "{"
+                       "\"res\": %d,"
+                       "\"type\": \"%s\","
+                       "\"active\": %d,"
+                       "\"freq\": %.2f,"
+                       "\"id\": \"%s\","
+                       "\"ser\": \"%s\","
+                       "\"validId\": %d,"
+                       "\"launchsite\": \"%s\","
+                       "\"lat\": %.5f,"
+                       "\"lon\": %.5f,"
+                       "\"alt\": %.1f,"
+                       "\"vs\": %.1f,"
+                       "\"hs\": %.1f,"
+                       "\"dir\": %.1f,"
+                       "\"sats\": %d,"
+                       "\"validPos\": %d,"
+                       "\"time\": %d,"
+                       "\"frame\": %d,"
+                       "\"validTime\": %d,"
+                       "\"rssi\": %d,"
+                       "\"afc\": %d,"
+                       "\"launchKT\": %d,"
+                       "\"burstKT\": %d,"
+                       "\"countKT\": %d,"
+                       "\"crefKT\": %d"
+                       "%s"
+                       "}\n",
+                       res & 0xff,
+                       typestr,
+                       (int)s->active,
+                       s->freq,
+                       s->d.id,
+                       s->d.ser,
+                       (int)s->d.validID,
+                       s->launchsite,
+                       lat,
+                       lon,
+                       alt,
+                       vs,
+                       hs,
+                       dir,
+                       s->d.sats,
+                       s->d.validPos,
+                       s->d.time,
+                       s->d.frame,
+                       (int)s->d.validTime,
+                       s->rssi,
+                       s->afc,
+                       s->d.launchKT,
+                       s->d.burstKT,
+                       s->d.countKT,
+                       s->d.crefKT,
+                       gps
+                      );
+  #endif
+
+    //Serial.println("Writing rdzclient...");
+    if (len > 1024) len = 1024;
+    int wlen = rdzclient.write(raw, len);
+    if (wlen != len) {
+      Serial.println("Writing rdzClient not OK, closing connection");
+      rdzclient.stop();
+    }
+    //Serial.println("Writing rdzclient OK");
+  }
+  Serial.print("MAIN: updateDisplay started\n");
+  sonde.dispsavectlOFF( (res & 0xff) == 0 );  // handle screen saver (disp auto off)
+  if (forceReloadScreenConfig) {
+    disp.initFromFile(sonde.config.screenfile);
+    sonde.clearDisplay();
+    forceReloadScreenConfig = false;
+  }
+  int t = millis();
+  sonde.updateDisplay();
+  Serial.printf("MAIN: updateDisplay done (after %d ms)\n", (int)(millis() - t));
+}
+
+void loop() {
+  Serial.printf("\nMAIN: Running loop in state %d [currentDisp:%d, lastDisp:%d]. free heap: %d, unused stack: %d\n",
+                mainState, currentDisplay, lastDisplay, ESP.getFreeHeap(), uxTaskGetStackHighWaterMark(0));
+  switch (mainState) {
+    case ST_DECODER:
+  #ifndef DISABLE_MAINRX
+      loopDecoder();
+  #else
+      delay(1000);
+  #endif
+      break;
+    case ST_SPECTRUM: loopSpectrum(); break;
+    case ST_WIFISCAN: loopWifiScan(); break;
+    case ST_UPDATE: execOTA(); break;
+    case ST_TOUCHCALIB: loopTouchCalib(); break;
+  }
+  #if 0
+  int rssi = sx1278.getRSSI();
+  Serial.print("  RSSI: ");
+  Serial.print(rssi);
+
+  int gain = sx1278.getLNAGain();
+  Serial.print(" LNA Gain: "),
+               Serial.println(gain);
+  #endif
+  loopWifiBackground();
+  if (currentDisplay != lastDisplay && (mainState == ST_DECODER)) {
+    disp.setLayout(currentDisplay);
+    sonde.clearDisplay();
+    sonde.updateDisplay();
+    lastDisplay = currentDisplay;
+  }
+
+  #if FEATURE_MQTT
+  int now = millis();
+  if (mqttEnabled && (lastMqttUptime == 0 || (lastMqttUptime + 60000 < now) || (lastMqttUptime > now))) {
+    mqttclient.publishUptime();
+    lastMqttUptime = now;
+  }
+  #endif
+}
